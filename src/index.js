@@ -334,7 +334,7 @@
 
           if (senderResponse.userData.usdBalance < (usdAmount + 1)) {
             console.log(
-              '/native-ember-token/transaction',
+              '/transaction',
               '****PROCESS PAYMENTS HERE****',
               cardNumber,
               {
