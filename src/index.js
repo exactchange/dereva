@@ -15,6 +15,14 @@
   const embercoin = require('embercoin');
 
   const {
+    API_KEY,
+    TOKEN_ADDRESS,
+    TOKEN_NAME,
+    TOKEN_LOGO_URL,
+    TOKEN_DENOMINATION
+  } = process.env;
+
+  const {
     create,
     read,
     update,
@@ -29,8 +37,6 @@
     INSUFFICIENT_FUNDS,
     UNAVAILABLE_TOKEN
   } = require('./errors');
-
-  const TOKEN_DENOMINATION = 10;
 
   /*
   Backend
@@ -55,6 +61,8 @@
     const updateResult = await update({
       username: user.username,
       token,
+      appSlug: 'native-ember-token',
+      apiKey: API_KEY,
       payload: {
         [field]: userData[field]
       }
@@ -180,6 +188,12 @@
         service: embercoin,
         serviceName: 'embercoin',
         method: 'transactions'
+      }),
+      info: () => ({
+        address: TOKEN_ADDRESS,
+        name: TOKEN_NAME,
+        logo: TOKEN_LOGO_URL,
+        denomination: TOKEN_DENOMINATION
       })
     },
     POST: {
@@ -250,6 +264,7 @@
             token: user.token,
             isOnline: user.isOnline,
             userData: {
+              address: user.userData.address,
               tokens: user.userData.tokens,
               usdBalance: user.userData.usdBalance,
               embrBalance: user.userData.embrBalance
@@ -382,6 +397,7 @@
             token: user.token,
             isOnline: user.isOnline,
             userData: {
+              address: user.userData.address,
               tokens: user.userData.tokens,
               usdBalance: user.userData.usdBalance,
               embrBalance: user.userData.embrBalance

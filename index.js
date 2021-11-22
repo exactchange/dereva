@@ -1,15 +1,27 @@
+require('dotenv').config();
+
 /*
  * Native Ember Token
  */
 
-require('dotenv').config();
+[
+  'API_KEY',
+  'BLOCKCHAIN_DB_NAME',
+  'BLOCKCHAIN_MONGO_URI',
+  'HOST',
+  'PORT',
+  'TOKEN_ADDRESS',
+  'TOKEN_NAME',
+  'TOKEN_LOGO_URL',
+  'TOKEN_DENOMINATION'
+].forEach(config => {
+  if (!(config in process.env)) {
+    console.log(`${config} is missing from your .env file! Exiting.`);
+    process.exit();
+  }
+});
 
 const { PORT, HOST } = process.env;
-
-if (!HOST || !PORT) {
-  console.log('Please create a local .env file! Exiting.');
-  process.exit();
-}
 
 // Configure HTTP
 
