@@ -2,7 +2,7 @@
 
 ### What is NET?
 
-NET is a deployable digital currency that operates on Embercoin via the EMBR protocol. Any user with a minimum account balance of 1 EMBR may define and alias (name) their own token to sell or freely distribute to their users in any amount and denomination they choose, limited to their account balance. Token denomination itself is untracked and unregulated in order to extend price flexibility to the token merchant. A blockchain transaction occurs only when tokens are transferred between users, at which time a normal Embercoin transaction is carried out at the EMBR value at which it was disbursed, accounting for how it was denominated.
+NET is a deployable digital currency that operates on [Embercoin](https://github.com/exactchange/embercoin) via the EMBR protocol. Any user with a minimum account balance of 1 EMBR may define and alias (name) their own token to sell or freely distribute to their users in any amount and denomination they choose, limited to their account balance. Token denomination itself is untracked and unregulated in order to extend price flexibility to the token merchant. A blockchain transaction occurs only when tokens are transferred between users, at which time a normal Embercoin transaction is carried out at the EMBR value at which it was disbursed, accounting for how it was denominated.
 
 NETs are bound to, and can only be spent in whichever economy they were disbursed. In addition to spending them, assuming a minimum account value of 1 EMBR, they can be liquidated, or converted back into EMBR in order to be traded or disbursed in a new, private economy to which their native status will be migrated.
 
