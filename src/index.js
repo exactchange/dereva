@@ -157,7 +157,7 @@
         recipientAddress: sender.userData.address,
         recipientAmount: embrAmount,
         tokenAddress,
-        usdAmount: transactionResult.price,
+        usdAmount: transactionResult.price * embrAmount,
         embrAmount,
         currency: 'embr',
         denomination
