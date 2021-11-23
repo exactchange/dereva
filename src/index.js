@@ -15,14 +15,6 @@
   const embercoin = require('embercoin');
 
   const {
-    API_KEY,
-    TOKEN_ADDRESS,
-    TOKEN_NAME,
-    TOKEN_LOGO_URL,
-    TOKEN_DENOMINATION
-  } = process.env;
-
-  const {
     create,
     read,
     update,
@@ -37,6 +29,14 @@
     INSUFFICIENT_FUNDS,
     UNAVAILABLE_TOKEN
   } = require('./errors');
+
+  const {
+    API_KEY,
+    TOKEN_ADDRESS,
+    TOKEN_NAME,
+    TOKEN_LOGO_URL,
+    TOKEN_DENOMINATION
+  } = process.env;
 
   /*
   Backend
@@ -171,6 +171,62 @@
     }
 
     return transactionResult;
+  };
+
+  const processExchange = async ({
+    sender,
+    recipientAddress,
+    tokenAddress,
+    embrAmount,
+    currency,
+    denomination = 1
+  }) => {
+    const currencySymbol = currency.toLowerCase();
+    const isEmbr = currencySymbol === 'embr';
+
+    if (!isEmbr || sender.userData.address !== recipientAddress) {
+      return false;
+    }
+
+    const transactionResult = await userEvents.onServicePost({
+      service: embercoin,
+      serviceName: 'embercoin',
+      method: 'transaction',
+      body: {
+        senderAddress: sender.userData.address,
+        recipientAddress: 'treasury-0000-0000-0000-000000000000',
+        tokenAddress,
+        usdAmount: 0,
+        embrAmount,
+        currency: 'embr',
+        denomination
+      }
+    });
+
+    if (!transactionResult || transactionResult.status !== 200) {
+      return false;
+    }
+
+    const exchangeResult = await userEvents.onServicePost({
+      service: embercoin,
+      serviceName: 'embercoin',
+      method: 'transaction',
+      body: {
+        senderAddress: 'treasury-0000-0000-0000-000000000000',
+        recipientAddress: sender.userData.address,
+        tokenAddress: sender.userData.address,
+        usdAmount: 0,
+        embrAmount,
+        currency: 'embr',
+        denomination: TOKEN_DENOMINATION
+      }
+    });
+
+    if (!exchangeResult || exchangeResult.status !== 200) {
+      return false;
+    }
+
+    return exchangeResult;
   };
 
   /*
@@ -350,7 +406,7 @@
           if (senderResponse.userData.usdBalance < (usdAmount + 1)) {
             console.log(
               '/transaction',
-              '****PROCESS PAYMENTS HERE****',
+              'PROCESSOR_PAYMENT_URL',
               cardNumber,
               {
                 amount: usdAmount
@@ -365,19 +421,29 @@
           recipientAmount = usdAmount;
         }
 
-        const transactionResult = await processTransaction({
-          token,
-          sender: senderResponse,
-          senderAmount,
-          recipient: recipientResponse,
-          recipientAddress,
-          recipientAmount,
-          tokenAddress,
-          usdAmount,
-          embrAmount,
-          currency,
-          denomination: TOKEN_DENOMINATION
-        });
+        const transactionResult = senderResponse.userData.address !== recipientAddress
+          ? await processTransaction({
+            token,
+            sender: senderResponse,
+            senderAmount,
+            recipient: recipientResponse,
+            recipientAddress,
+            recipientAmount,
+            tokenAddress,
+            usdAmount,
+            embrAmount,
+            currency,
+            denomination: TOKEN_DENOMINATION
+          })
+          : await processExchange({
+            sender: senderResponse,
+            recipientAddress,
+            tokenAddress,
+            embrAmount,
+            currency
+          });
+
+        console.log(transactionResult);
 
         if (!transactionResult) {
           return SERVER_ERROR;
@@ -386,7 +452,7 @@
         user = await userApi.getUser({ token });
 
         console.log(
-          `<Native Ember Token> ${senderResponse.username} sent ${recipientResponse.username} ${isCoin ? embrAmount.toFixed(2) : usdAmount.toFixed(2)} ${currency.toUpperCase()}.`
+          `<Native Ember Token> ${senderResponse.username} sent ${recipientResponse.username} ${isEmbr ? embrAmount.toFixed(2) : usdAmount.toFixed(2)} ${currency.toUpperCase()}.`
         );
 
         return {
