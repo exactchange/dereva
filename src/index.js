@@ -14,12 +14,7 @@
   const { http } = require('node-service-client');
   const embercoin = require('embercoin');
 
-  const {
-    create,
-    read,
-    update,
-    register
-  } = require('identity-client');
+  const { create, read, register } = require('identity-client');
 
   const {
     SERVER_ERROR,
@@ -31,7 +26,6 @@
   } = require('./errors');
 
   const {
-    API_KEY,
     TOKEN_ADDRESS,
     TOKEN_NAME,
     TOKEN_LOGO_URL,
@@ -47,187 +41,8 @@
 
   const { generateId } = require('./algorithms');
 
-  /*
-  Private
-  */
-
-  const updateUserBalance = async ({ token, user, field, amount }) => {
-    const userData = {
-      ...user.userData,
-
-      [field]: parseFloat(user.userData[field] + amount),
-    };
-
-    const updateResult = await update({
-      username: user.username,
-      token,
-      appSlug: 'native-ember-token',
-      apiKey: API_KEY,
-      payload: {
-        [field]: userData[field]
-      }
-    });
-
-    if (!updateResult?.success) {
-      return false;
-    }
-
-    const apiUpdateResult = await userApi.updateUser({
-      token,
-      userData
-    });
-
-    if (!apiUpdateResult) {
-      return false;
-    }
-
-    return true;
-  };
-
-  const processTransaction = async ({
-    token,
-    sender,
-    senderAmount,
-    recipient,
-    recipientAddress,
-    recipientAmount,
-    tokenAddress,
-    usdAmount,
-    embrAmount,
-    currency,
-    denomination
-  }) => {
-    const currencySymbol = currency.toLowerCase();
-    const isEmbr = currencySymbol === 'embr';
-    const field = isEmbr ? 'embrBalance' : 'usdBalance';
-
-    const transactionResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
-      method: 'transaction',
-      body: {
-        senderAddress: sender.userData.address,
-        recipientAddress,
-        tokenAddress,
-        usdAmount,
-        embrAmount,
-        currency,
-        denomination
-      }
-    });
-
-    if (!transactionResult || transactionResult.status !== 200) {
-      return false;
-    }
-
-    const senderUpdate = await updateUserBalance({
-      token,
-      user: sender,
-      field,
-      amount: senderAmount
-    });
-
-    if (!senderUpdate) {
-      return false;
-    }
-
-    const recipientUpdate = await updateUserBalance({
-      token,
-      user: recipient,
-      field,
-      amount: parseFloat(
-        recipientAmount + (
-          isEmbr
-            ? parseFloat(transactionResult.reward || 0)
-            : 0
-        )
-      )
-    });
-
-    if (!recipientUpdate) {
-      return false;
-    }
-
-    if (!isEmbr) {
-      const transferResult = await processTransaction({
-        token,
-        sender: recipient,
-        senderAmount: embrAmount * -1,
-        recipient: sender,
-        recipientAddress: sender.userData.address,
-        recipientAmount: embrAmount,
-        tokenAddress,
-        usdAmount: transactionResult.price * embrAmount,
-        embrAmount,
-        currency: 'embr',
-        denomination
-      });
-
-      if (!transferResult) {
-        console.log(
-          '<Native Ember Token> Transfer Error: There was a problem transferring EMBR between accounts.', sender, recipient
-        );
-      }
-    }
-
-    return transactionResult;
-  };
-
-  const processExchange = async ({
-    sender,
-    recipientAddress,
-    tokenAddress,
-    embrAmount,
-    currency,
-    denomination = 1
-  }) => {
-    const currencySymbol = currency.toLowerCase();
-    const isEmbr = currencySymbol === 'embr';
-
-    if (!isEmbr || sender.userData.address !== recipientAddress) {
-      return false;
-    }
-
-    const transactionResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
-      method: 'transaction',
-      body: {
-        senderAddress: sender.userData.address,
-        recipientAddress: 'treasury-0000-0000-0000-000000000000',
-        tokenAddress,
-        usdAmount: 0,
-        embrAmount,
-        currency: 'embr',
-        denomination
-      }
-    });
-
-    if (!transactionResult || transactionResult.status !== 200) {
-      return false;
-    }
-
-    const exchangeResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
-      method: 'transaction',
-      body: {
-        senderAddress: 'treasury-0000-0000-0000-000000000000',
-        recipientAddress: sender.userData.address,
-        tokenAddress: sender.userData.address,
-        usdAmount: 0,
-        embrAmount,
-        currency: 'embr',
-        denomination: TOKEN_DENOMINATION
-      }
-    });
-
-    if (!exchangeResult || exchangeResult.status !== 200) {
-      return false;
-    }
-
-    return exchangeResult;
-  };
+  const { BalanceUpdate } = require('./authorizations')({ userApi });
+  const { StandardAgreement, ExchangeAgreement } = require('./contracts')({ embercoin, userEvents, BalanceUpdate });
 
   /*
   Service (HTTP)
@@ -359,7 +174,8 @@
         currency,
         usdAmount,
         embrAmount,
-        cardNumber
+        cardNumber,
+        contract
       }) => {
         if (!username || !token) return;
 
@@ -421,8 +237,15 @@
           recipientAmount = usdAmount;
         }
 
-        const transactionResult = senderResponse.userData.address !== recipientAddress
-          ? await processTransaction({
+        const transactionResult = contract === 'exchange'
+          ? await ExchangeAgreement({
+            sender: senderResponse,
+            recipientAddress,
+            tokenAddress,
+            embrAmount,
+            currency
+          })
+          : await StandardAgreement({
             token,
             sender: senderResponse,
             senderAmount,
@@ -434,16 +257,7 @@
             embrAmount,
             currency,
             denomination: TOKEN_DENOMINATION
-          })
-          : await processExchange({
-            sender: senderResponse,
-            recipientAddress,
-            tokenAddress,
-            embrAmount,
-            currency
           });
-
-        console.log(transactionResult);
 
         if (!transactionResult) {
           return SERVER_ERROR;
