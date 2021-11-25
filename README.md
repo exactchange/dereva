@@ -36,7 +36,7 @@ Contracts are agreements between participants in a transaction that are specifie
 
 ### Usage
 
-1. Fork this repository and make any desired changes or necessary extensions. For example, set it up to serve a front-end, or connect it to another service.
+1. Fork this repository and make any desired changes or necessary extensions. For example, change the way the front-end looks and behaves, or connect it to another backend service, etc.
 
 2. Add an `.env` file to the root of your directory with the following scaffold:
 
