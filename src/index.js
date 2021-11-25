@@ -188,7 +188,6 @@
         const signup = await identity.register({
           username,
           userData: {
-            tokens: [],
             address: generateId()
           },
           appSlug: 'native-ember-token'
