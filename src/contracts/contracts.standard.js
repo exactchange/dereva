@@ -5,14 +5,12 @@
  *
  */
 
-module.exports = ({ embercoin, userEvents, BalanceUpdate }) => {
+module.exports = ({ embercoin, userEvents }) => {
   const StandardAgreement = async ({
     token,
     sender,
-    senderAmount,
     recipient,
     recipientAddress,
-    recipientAmount,
     tokenAddress,
     usdAmount,
     embrAmount,
@@ -20,7 +18,6 @@ module.exports = ({ embercoin, userEvents, BalanceUpdate }) => {
   }) => {
     const currencySymbol = currency.toLowerCase();
     const isEmbr = currencySymbol === 'embr';
-    const field = isEmbr ? 'embrBalance' : 'usdBalance';
 
     const transactionResult = await userEvents.onServicePost({
       service: embercoin,
@@ -40,42 +37,12 @@ module.exports = ({ embercoin, userEvents, BalanceUpdate }) => {
       return false;
     }
 
-    const senderUpdate = await BalanceUpdate({
-      token,
-      user: sender,
-      field,
-      amount: senderAmount
-    });
-
-    if (!senderUpdate) {
-      return false;
-    }
-
-    const recipientUpdate = await BalanceUpdate({
-      token,
-      user: recipient,
-      field,
-      amount: parseFloat(
-        recipientAmount + (
-          isEmbr
-            ? parseFloat(transactionResult.reward || 0)
-            : 0
-        )
-      )
-    });
-
-    if (!recipientUpdate) {
-      return false;
-    }
-
     if (!isEmbr) {
       const transferResult = await StandardAgreement({
         token,
         sender: recipient,
-        senderAmount: embrAmount * -1,
         recipient: sender,
         recipientAddress: sender.userData.address,
-        recipientAmount: embrAmount,
         tokenAddress,
         usdAmount: transactionResult.price * embrAmount,
         embrAmount,

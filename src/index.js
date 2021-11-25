@@ -38,7 +38,6 @@
   Backend
   */
 
-  identity.setURL(API_URL);
   fern.setURL(API_URL);
 
   const userApi = require('./api/api.user')();
@@ -46,8 +45,46 @@
 
   const { generateId } = require('./algorithms');
 
-  const { BalanceUpdate } = require('./authorizations')({ userApi });
-  const { StandardAgreement, ExchangeAgreement } = require('./contracts')({ embercoin, userEvents, BalanceUpdate });
+  const { StandardAgreement, ExchangeAgreement } = require('./contracts')({
+    embercoin,
+    userEvents
+  });
+
+  /*
+  Private
+  */
+
+  const getTokenEmbrBalance = async ({ address, tokenAddress }) => {
+    const transactionsResult = await userEvents.onServiceGet({
+      service: embercoin,
+      serviceName: 'embercoin',
+      method: 'transactions'
+    });
+
+    if (!transactionsResult?.success) {
+      return -1;
+    }
+
+    const transactions = transactionsResult.body;
+
+    const tokenDebit = transactions
+      .filter(block => (
+        block.senderAddress === address &&
+        block.tokenAddress === tokenAddress
+      ))
+      .map(({ embrAmount }) => embrAmount)
+      .reduce((a, b) => a + b);
+
+    const tokenCredit = transactions
+      .filter(block => (
+        block.recipientAddress === address &&
+        block.tokenAddress === tokenAddress
+      ))
+      .map(({ embrAmount }) => embrAmount)
+      .reduce((a, b) => a + b);
+
+    return tokenCredit - tokenDebit;
+  };
 
   /*
   Service (HTTP)
@@ -118,7 +155,7 @@
           userData
         });
 
-        if (!user.userData?.tokens) {
+        if (!user.userData?.address) {
           return USER_NOT_FOUND_ERROR;
         }
 
@@ -140,10 +177,7 @@
             token: user.token,
             isOnline: user.isOnline,
             userData: {
-              address: user.userData.address,
-              tokens: user.userData.tokens,
-              usdBalance: user.userData.usdBalance,
-              embrBalance: user.userData.embrBalance
+              address: user.userData.address
             }
           },
           price: priceResult.price,
@@ -155,8 +189,6 @@
           username,
           userData: {
             tokens: [],
-            embrBalance: 0,
-            usdBalance: 0,
             address: generateId()
           },
           appSlug: 'native-ember-token'
@@ -214,36 +246,38 @@
         const isEmbr = currencySymbol === 'embr';
 
         if (isEmbr) {
-          if (senderResponse.userData.embrBalance < embrAmount) {
+          const senderTokenEmbrBalance = await getTokenEmbrBalance({
+            address: senderResponse.userData.address,
+            tokenAddress
+          });
+
+          if (senderTokenEmbrBalance < embrAmount) {
             return INSUFFICIENT_FUNDS;
           }
 
           senderAmount = embrAmount * -1;
           recipientAmount = embrAmount;
         } else {
-          if (recipientResponse.userData.embrBalance < embrAmount) {
+          const recipientTokenEmbrBalance = await getTokenEmbrBalance({
+            address: recipientAddress,
+            tokenAddress
+          });
+
+          if (recipientTokenEmbrBalance < embrAmount) {
             return UNAVAILABLE_TOKEN;
           }
 
-          if (senderResponse.userData.usdBalance < (usdAmount + 1)) {
-            const paymentResult = await fern.transaction({
-              username: senderResponse.username,
-              token,
-              recipient: recipientResponse.username,
-              usdAmount,
-              cardNumber
-            });
+          const paymentResult = await fern.transaction({
+            username: senderResponse.username,
+            token,
+            recipient: recipientResponse.username,
+            usdAmount,
+            cardNumber
+          });
 
-            if (!paymentResult?.success) {
-              return SERVER_ERROR;
-            }
-
-            senderAmount = 0;
-          } else {
-            senderAmount = usdAmount * -1;
+          if (!paymentResult?.success) {
+            return SERVER_ERROR;
           }
-
-          recipientAmount = usdAmount;
         }
 
         const transactionResult = contract === 'exchange'
@@ -257,10 +291,8 @@
           : await StandardAgreement({
             token,
             sender: senderResponse,
-            senderAmount,
             recipient: recipientResponse,
             recipientAddress,
-            recipientAmount,
             tokenAddress,
             usdAmount,
             embrAmount,
@@ -285,10 +317,7 @@
             token: user.token,
             isOnline: user.isOnline,
             userData: {
-              address: user.userData.address,
-              tokens: user.userData.tokens,
-              usdBalance: user.userData.usdBalance,
-              embrBalance: user.userData.embrBalance
+              address: user.userData.address
             }
           },
           price: transactionResult.price,
