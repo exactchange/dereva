@@ -38,6 +38,7 @@
   Backend
   */
 
+  identity.setURL(API_URL);
   fern.setURL(API_URL);
 
   const userApi = require('./api/api.user')();
