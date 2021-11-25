@@ -1,6 +1,6 @@
 {
   "name": "native-ember-token",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "start": "node index",
     "test": "node src/tests"
@@ -10,6 +10,7 @@
     "dotenv": "^8.2.0",
     "embercoin": "^1.2.4",
     "express": "^4.17.1",
+    "fern-client": "^1.0.4",
     "identity-client": "^1.0.2",
     "mongodb": "^3.6.5",
     "node-fetch": "^2.6.1",

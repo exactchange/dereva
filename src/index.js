@@ -14,12 +14,8 @@
   const { http } = require('node-service-client');
   const embercoin = require('embercoin');
 
-  const {
-    create,
-    read,
-    register,
-    setURL
-  } = require('identity-client');
+  const identity = require('identity-client');
+  const fern = require('fern-client');
 
   const {
     SERVER_ERROR,
@@ -38,11 +34,12 @@
     TOKEN_DENOMINATION
   } = process.env;
 
-  setURL(API_URL);
-
   /*
   Backend
   */
+
+  identity.setURL(API_URL);
+  fern.setURL(API_URL);
 
   const userApi = require('./api/api.user')();
   const userEvents = require('./events/events.user')();
@@ -94,7 +91,7 @@
 
           userData = result.userData || {};
         } else {
-          result = await create({
+          result = await identity.create({
             username,
             password,
             appSlug: 'native-ember-token'
@@ -106,7 +103,7 @@
 
           token = result.token;
 
-          result = await read({
+          result = await identity.read({
             username,
             token
           });
@@ -154,7 +151,7 @@
         };
       },
       register: async ({ username }) => {
-        const signup = await register({
+        const signup = await identity.register({
           username,
           userData: {
             tokens: [],
@@ -173,6 +170,7 @@
           success: true
         };
       },
+      cards: fern.cards,
       transaction: async ({
         token,
         username,
@@ -187,8 +185,8 @@
       }) => {
         if (!username || !token) return;
 
-        const senderResult = await read({ username, token });
-        const recipientResult = await read({ username: recipient, token });
+        const senderResult = await identity.read({ username, token });
+        const recipientResult = await identity.read({ username: recipient, token });
 
         let senderResponse;
 
@@ -228,14 +226,17 @@
           }
 
           if (senderResponse.userData.usdBalance < (usdAmount + 1)) {
-            console.log(
-              '/transaction',
-              'PROCESSOR_PAYMENT_URL',
-              cardNumber,
-              {
-                amount: usdAmount
-              }
-            );
+            const paymentResult = await fern.transaction({
+              username: senderResponse.username,
+              token,
+              recipient: recipientResponse.username,
+              usdAmount,
+              cardNumber
+            });
+
+            if (!paymentResult?.success) {
+              return SERVER_ERROR;
+            }
 
             senderAmount = 0;
           } else {
@@ -296,7 +297,9 @@
         };
       }
     },
-    PUT: {},
+    PUT: {
+      card: fern.save
+    },
     DELETE: {}
   });
 })();

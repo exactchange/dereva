@@ -54,7 +54,7 @@ Contracts are agreements between participants in a transaction that are specifie
   TOKEN_DENOMINATION=
 ```
 
-- `API_KEY` & `API_URL`: Only required if you plan on using the built-in [Person](https://github.com/exactchange/person) identity management platform.
+- `API_KEY` & `API_URL`: Only required if you plan on using the built-in [Identity Client](https://github.com/exactchange/identity-client).
 - `BLOCKCHAIN_DB_NAME` & `BLOCKCHAIN_MONGO_URI`: Your MongoDB Atlas Database name and URI.
 - `HOST`: The address at which you host this app.
 - `PORT`: The port you're serving it over.

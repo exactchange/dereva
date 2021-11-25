@@ -106,7 +106,7 @@
                   <p id="price-average">$-</p>
                   <p class="negative" id="price-24h">-%</p>
                   <p>
-                    <button disabled title="Available soon." id="buy-coin-button">Buy</button>
+                    <button id="buy-coin-button">Buy</button>
                   </p>
                 </li>
               </ul>
@@ -121,7 +121,7 @@
                   <h4></h4>
                 </li>
                 <li>
-                  <img id="token-img" src="" alt="Anonymous Token" width="32" height="32" />
+                  <img id="token-img" src="../media/questionmark.png" alt="Anonymous Token" width="32" height="32" />
                   <h4 id="token-name"></h4>
                   <p id="token-price-average">$-</p>
                   <p class="negative" id="token-price-24h">-%</p>
@@ -200,7 +200,7 @@
 
         if (!appName) {
           appName = appNames[0];
-          window.location.href = `?app=${appName}`;
+          window.location.href = `/?app=${appName}`;
 
           return;
         }
@@ -218,10 +218,6 @@
         const notification = document.getElementById('notification');
         const email = document.getElementById('email');
         const signup = document.getElementById('signup');
-
-        // Select wallet elements
-
-        const cardList = document.querySelector('.card-list');
 
         // Set tab button
 
@@ -412,63 +408,13 @@
 
           tabs.innerHTML += appNames
             .map(tab => (
-              `<li${tab === appName ? ' class="active"' : ''}><a href="?app=${tab}">${tab}</a></li>`
+              `<li${tab === appName ? ' class="active"' : ''}><a href="/?app=${tab}">${tab}</a></li>`
             ))
             .join('');
 
           // Render app frame
 
           frame.innerHTML = apps[appName];
-
-          // Handle render card list
-
-          const renderCardList = () => {
-            if (!user?.userData?.cards) {
-
-              return false;
-            }
-
-            requestAnimationFrame(() => {
-              cardList.innerHTML = user.userData.cards
-                .map(card => {
-                  if (!card?.processor) return;
-
-                  const balance = user.userData[(
-                    card.processor === 'EMBR'
-                      ? 'embrBalance'
-                      : 'usdBalance'
-                  )];
-
-                  const {
-                    name,
-                    number,
-                    processor,
-                    currency
-                  } = card;
-
-                  return `
-                    <li class="card ${processor.toLowerCase()}" data-id="${number}" title="Balance: ${balance} ${currency.toUpperCase()}">
-                      <p class="number">${number}</p>
-                      <span class="details">
-                        <p>${name}</p>
-                        <!-- <img src="${processor.toLowerCase()}" alt="${processor}" width="72" height="36" /> -->
-                      </span>
-                    </li>
-                  `;
-                })
-                .join('');
-
-              cardList.innerHTML += (`
-                <li class="card new">
-                  <button id="add-card">
-                    + Add Card
-                  </button>
-                </li>
-              `);
-            });
-
-            return true;
-          };
 
           // Handle card list interactions
 
@@ -502,8 +448,8 @@
             const onClickSaveCard = async event => {
               event.preventDefault();
 
-              const cardResult = await fetch('/fern/card', {
-                method: 'POST',
+              const cardResult = await fetch('/card', {
+                method: 'PUT',
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
@@ -529,14 +475,13 @@
                 cardCVV.value = '';
                 user = cardResponse?.user;
 
-                if (!renderCardList()) {
+                if (!renderCardList(document.querySelector('.frond-wallet-overlay > .frond-wallet'))) {
                   notification.innerHTML = 'Error fetching cards.';
                   notification.setAttribute('class', 'show');
                   setTimeout(() => notification.removeAttribute('class'), 5000);
                 }
 
                 requestAnimationFrame(() => {
-                  bindCardListEvents();
                   onClickCloseOverlay();
                   localStorage.setItem('user', JSON.stringify(user));
                 });
@@ -553,7 +498,140 @@
             };
 
             addCardButton.onclick = onClickAddCard;
-          }
+
+            // Wallet events
+
+            const walletOverlay = document.querySelector('.frond-wallet-overlay');
+
+            walletOverlay.onclick = event => {
+              if (
+                event.target.localName === 'body' ||
+                event.target.className === 'frond-wallet-overlay'
+              ) {
+                walletOverlay.remove();
+              }
+            };
+
+            [].forEach.call(
+              document.querySelectorAll('.card-list > .card:not(.new)'),
+              card => {
+                card.onclick = async () => {
+                  const usdAmount = 10; // TOKEN SALE AMOUNT
+                  const embrAmount = 0.0001; // DENOMINATION MULTIPLIER
+
+                  const buyResult = await fetch('/transaction', {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      username: user.username,
+                      token: user.token,
+                      recipient: 'YOUR_AUTH_USERNAME',
+                      recipientAddress: 'YOUR_TOKEN_ADDRESS',
+                      tokenAddress: 'TARGET_TOKEN_ADDRESS_(YOURS)',
+                      currency: 'usd',
+                      usdAmount,
+                      embrAmount,
+                      cardNumber: card.dataset.id
+                    })
+                  });
+
+                  if (buyResult && buyResult.status === 200) {
+                    const buyResponse = await buyResult.json();
+
+                    notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
+                    notification.setAttribute('class', 'show');
+                    renderPrice(buyResponse);
+                  } else {
+                    notification.innerHTML = `There was a problem processing that card.`;
+                    notification.setAttribute('class', 'show error');
+                  }
+
+                  walletOverlay.remove();
+                  setTimeout(() => notification.removeAttribute('class'), 5000);
+                };
+              }
+            );
+          };
+
+          // Handle render card list
+
+          const renderCardList = async parentElement => {
+            const cardsResult = await fetch('/cards', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                token: user.token,
+                username: user.username
+              })
+            });
+
+            if (cardsResult && cardsResult.status === 200) {
+              const cardsResponse = await cardsResult.json();
+
+              if (!cardsResponse?.success) {
+                return false;
+              }
+
+              const cardList = document.createElement('ul');
+
+              requestAnimationFrame(() => {
+                cardList.setAttribute('class', 'card-list');
+
+                const { cards } = cardsResponse;
+
+                cardList.innerHTML = cards.map(card => {
+                  if (!card?.processor) return;
+
+                  const balance = user.userData[(
+                    card.processor === 'EMBR'
+                      ? 'embrBalance'
+                      : 'usdBalance'
+                  )];
+
+                  const {
+                    name,
+                    number,
+                    processor,
+                    currency
+                  } = card;
+
+                  return `
+                    <li class="card ${processor.toLowerCase()}" data-id="${number}" title="Balance: ${balance} ${currency.toUpperCase()}">
+                      <p class="number">${number}</p>
+                      <span class="details">
+                        <p>${name}</p>
+                        <!-- <img src="${processor.toLowerCase()}" alt="${processor}" width="72" height="36" /> -->
+                      </span>
+                    </li>
+                  `;
+                })
+                .join('');
+
+                cardList.innerHTML += (`
+                  <li class="card new">
+                    <button id="add-card">
+                      + Add Card
+                    </button>
+                  </li>
+                `);
+
+                if (parentElement) {
+                  parentElement.innerHTML = cardList.outerHTML;
+                }
+
+                setTimeout(bindCardListEvents, 100);
+
+              });
+
+              return true;
+            }
+          };
 
           // Handle render price
 
@@ -760,21 +838,8 @@
               // Handle buy coin
 
               const onClickBuyCoin = async () => {
-                if (!renderCardList()) {
-                  notification.innerHTML = 'Error fetching cards.';
-                  notification.setAttribute('class', 'show error');
-                  setTimeout(() => notification.removeAttribute('class'), 5000);
-
-                  return;
-                }
-
-                const priceResult = await fetch('/price');
-
-                if (!priceResult || priceResult.status !== 200) return;
-
-                const priceResponse = await priceResult.json();
-
                 requestAnimationFrame(() => {
+                  const cardList = document.querySelector('.card-list');
                   const frondWalletOverlay = document.createElement('div');
                   const frondWalletOverlayStyles = document.createElement('style');
 
@@ -816,77 +881,19 @@
                   frondWalletOverlay.innerHTML = `
                     <div class="frond-wallet">
                       <h3>Payment Method</h3>
-                      ${cardList.outerHTML}
                     </div>
                   `;
 
                   frame.insertBefore(frondWalletOverlayStyles, frame.firstElementChild);
                   frame.insertBefore(frondWalletOverlay, frondWalletOverlayStyles.nextElementSibling);
 
-                  // Bind card events
+                  if (!renderCardList(frondWalletOverlay.firstElementChild)) {
+                    notification.innerHTML = 'Error fetching cards.';
+                    notification.setAttribute('class', 'show error');
+                    setTimeout(() => notification.removeAttribute('class'), 5000);
 
-                  bindCardListEvents();
-
-                  [].forEach.call(
-                    document.querySelectorAll('.card-list > .card:not(.new)'),
-                    card => {
-                      const { id } = card.dataset;
-                      const { price } = priceResponse;
-                      const embrAmount = 1;
-
-                      const usdAmount = parseFloat(
-                        (parseFloat(price) + price * .1).toFixed(2)
-                      );
-
-                      card.onclick = async () => {
-                        const buyResult = await fetch('/transaction', {
-                          method: 'POST',
-                          headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                          },
-                          body: JSON.stringify({
-                            username: user.username,
-                            token: user.token,
-                            recipient: 'YOUR_USERNAME',
-                            recipientAddress: 'YOUR_TOKEN_ADDRESS',
-                            tokenAddress: 'TARGET_TOKEN_ADDRESS_(YOURS)',
-                            currency: 'usd',
-                            usdAmount,
-                            embrAmount,
-                            cardNumber
-                          })
-                        });
-
-                        if (buyResult && buyResult.status === 200) {
-                          const buyResponse = await buyResult.json();
-
-                          notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
-                          notification.setAttribute('class', 'show');
-                          renderPrice(buyResponse);
-                        } else {
-                          notification.innerHTML = `There was a problem processing that card.`;
-                          notification.setAttribute('class', 'show error');
-                        }
-
-                        walletOverlay.remove();
-                        setTimeout(() => notification.removeAttribute('class'), 5000);
-                      };
-                    }
-                  );
-
-                  // Bind wallet events
-
-                  const walletOverlay = document.querySelector('.frond-wallet-overlay');
-
-                  walletOverlay.onclick = event => {
-                    if (
-                      event.target.localName === 'body' ||
-                      event.target.className === 'frond-wallet-overlay'
-                    ) {
-                      walletOverlay.remove();
-                    }
-                  };
+                    return;
+                  }
                 });
               };
 

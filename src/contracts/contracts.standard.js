@@ -5,8 +5,8 @@
  *
  */
 
-module.exports = ({ embercoin, userEvents, BalanceUpdate }) => (
-  async ({
+module.exports = ({ embercoin, userEvents, BalanceUpdate }) => {
+  const StandardAgreement = async ({
     token,
     sender,
     senderAmount,
@@ -90,5 +90,7 @@ module.exports = ({ embercoin, userEvents, BalanceUpdate }) => (
     }
 
     return transactionResult;
-  }
-);
+  };
+
+  return StandardAgreement;
+};

@@ -1,8 +1,10 @@
-#tabs > li > .icon {
+#tabs > li:first-of-type > .icon,
+#tabs > li:first-of-type:hover > .icon {
   background-image: url("../icon.png");
+  filter: none;
 }
 
-#tabs > li:not(:first-of-type) > a {
+#tabs > li {
   text-transform: capitalize;
 }
 
