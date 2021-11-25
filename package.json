@@ -8,7 +8,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "embercoin": "^1.2.3",
+    "embercoin": "^1.2.4",
     "express": "^4.17.1",
     "identity-client": "^1.0.2",
     "mongodb": "^3.6.5",
