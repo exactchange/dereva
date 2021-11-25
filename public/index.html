@@ -622,7 +622,10 @@
                 `);
 
                 if (parentElement) {
-                  parentElement.innerHTML = cardList.outerHTML;
+                  parentElement.innerHTML = `
+                    <h3>Payment Method</h3>
+                    ${cardList.outerHTML}
+                  `;
                 }
 
                 setTimeout(bindCardListEvents, 100);
