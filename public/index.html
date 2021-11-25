@@ -588,12 +588,6 @@
                 cardList.innerHTML = cards.map(card => {
                   if (!card?.processor) return;
 
-                  const balance = user.userData[(
-                    card.processor === 'EMBR'
-                      ? 'embrBalance'
-                      : 'usdBalance'
-                  )];
-
                   const {
                     name,
                     number,
@@ -602,7 +596,7 @@
                   } = card;
 
                   return `
-                    <li class="card ${processor.toLowerCase()}" data-id="${number}" title="Balance: ${balance} ${currency.toUpperCase()}">
+                    <li class="card ${processor.toLowerCase()}" data-id="${number}">
                       <p class="number">${number}</p>
                       <span class="details">
                         <p>${name}</p>
