@@ -255,8 +255,7 @@
             tokenAddress,
             usdAmount,
             embrAmount,
-            currency,
-            denomination: TOKEN_DENOMINATION
+            currency
           });
 
         if (!transactionResult) {
