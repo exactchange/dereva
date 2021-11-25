@@ -1,6 +1,6 @@
 {
   "name": "native-ember-token",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "scripts": {
     "start": "node index",
     "test": "node src/tests"
@@ -14,7 +14,7 @@
     "mongodb": "^3.6.5",
     "node-fetch": "^2.6.1",
     "node-fetch-parser": "^1.0.1",
-    "node-service-client": "^1.0.2",
+    "node-service-client": "^1.0.3",
     "path": "^0.12.7"
   }
 }

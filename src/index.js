@@ -14,7 +14,12 @@
   const { http } = require('node-service-client');
   const embercoin = require('embercoin');
 
-  const { create, read, register } = require('identity-client');
+  const {
+    create,
+    read,
+    register,
+    setURL
+  } = require('identity-client');
 
   const {
     SERVER_ERROR,
@@ -26,11 +31,14 @@
   } = require('./errors');
 
   const {
+    API_URL,
     TOKEN_ADDRESS,
     TOKEN_NAME,
     TOKEN_LOGO_URL,
     TOKEN_DENOMINATION
   } = process.env;
+
+  setURL(API_URL);
 
   /*
   Backend

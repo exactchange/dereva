@@ -6,6 +6,7 @@ require('dotenv').config();
 
 [
   'API_KEY',
+  'API_URL',
   'BLOCKCHAIN_DB_NAME',
   'BLOCKCHAIN_MONGO_URI',
   'HOST',
@@ -27,6 +28,7 @@ const { PORT, HOST } = process.env;
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const Server = express();
 
@@ -34,20 +36,20 @@ Server.use(express.json());
 Server.use(express.urlencoded({ extended: false }));
 Server.use(cors());
 
+Server.use(
+  express.static(
+    path.join(__dirname, 'public', '/')
+  )
+);
+
 const server = require('http').createServer(Server);
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Native Ember Token is online at ${HOST}.`);
 
   // Native Ember Token service
 
   const net = require('./src');
-
-  // Handle ping
-
-  Server.get('/', (_, res) => (
-    res.send('Native Ember Token service is running.'))
-  );
 
   // Handle http
 

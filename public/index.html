@@ -1,0 +1,1019 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Market | Native Ember Token</title>
+    <link rel="icon" href="./src/favicon.ico">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./src/icon.png">
+    <link rel="stylesheet" href="https://exactchange.herokuapp.com/browser.css">
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Alegreya&family=Forum&family=Economica&family=Poiret+One&family=Averia+Serif+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Cinzel+Decorative:wght@400;700;900&family=Oi&family=UnifrakturCook:wght@700">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  </head>
+  <body>
+    <section id="main">
+      <button id="tab-button">☰</button>
+      <ul id="tabs">
+        <li>
+          <span class="icon"></span>
+          <a href="/">
+            Native Ember Token
+          </a>
+        </li>
+      </ul>
+      <div id="content" class="full-vh">
+        <aside id="notification"></aside>
+        <aside id="overlay">
+          <form id="add-card-overlay" class="card" action="">
+            <input id="card-number" type="number" placeholder="Card number" required />
+            <input id="card-name" type="text" placeholder="Name on card" required />
+            <input id="card-expiration" type="number" placeholder="Exp." required />
+            <input id="card-cvv" type="number" placeholder="CVV" required />
+            <button id="save-card">Save</button>
+          </form>
+        </aside>
+        <form id="signup" action="" class="hide">
+          <input id="email" type="email" autocomplete="true" placeholder="Email" required />
+          <button id="register">Signup</button>
+        </form>
+        <form id="auth" action="">
+          <h1 id="branding">
+            Native Ember Token
+          </h1>
+          <input id="username" autocomplete="true" placeholder="Email" tabindex="1" />
+          <input id="password" type="password" autocomplete="current-password" placeholder="Password" tabindex="2" />
+          <button id="login" tabindex="3">Login</button>
+          <div>
+            <button id="create">
+              Create an account
+            </button>
+          </div>
+        </form>
+        <div id="frame" class="hide">
+          <div id="shop">
+            Available soon.
+          </div>
+          <div id="market" class="flex column">
+            <h1 class="logo">
+              Market
+            </h1>
+            <ul class="segmented-control flex" data-name="account-balance">
+              <li data-name="liquid" role="control" class="active">Liquid</li>
+              <li data-name="net-worth" role="control" title="Available soon.">Net Worth</li>
+            </ul>
+            <div class="segmented-view" data-id="account-balance">
+              <div data-id="liquid" class="flex end active">
+                <div>
+                  <p>0.00</p>
+                  <h4>EMBR</h4>
+                </div>
+                <div>/</div>
+                <div>
+                  <p>0.00</p>
+                  <h4>USD</h4>
+                </div>
+              </div>
+              <div data-id="net-worth">
+                <div>
+                  <p>0.00</p>
+                  <h4>EMBR</h4>
+                </div>
+                <div>/</div>
+                <div>
+                  <p>0.00</p>
+                  <h4>USD</h4>
+                </div>
+              </div>
+            </div>
+            <div id="trading">
+              <p>
+                Embercoin (EMBR)
+              </p>
+              <ul id="price">
+                <li>
+                  <h4 class="img">Coin</h4>
+                  <h4 class="symbol"></h4>
+                  <h4>Market Cap</h4>
+                  <h4>Price</h4>
+                  <h4>24h %</h4>
+                  <h4>Invest</h4>
+                </li>
+                <li>
+                  <img src="https://exactchange.herokuapp.com/media/embercoin.png" alt="EMBR" width="32" height="32" />
+                  <h3>EMBR</h3>
+                  <p id="price-market-cap">$-</p>
+                  <p id="price-average">$-</p>
+                  <p class="negative" id="price-24h">-%</p>
+                  <p>
+                    <button disabled title="Available soon." id="buy-coin-button">Buy</button>
+                  </p>
+                </li>
+              </ul>
+              <p>
+                Native Ember Token (NET)
+              </p>
+              <ul id="prices">
+                <li>
+                  <h4 class="img">Token</h4>
+                  <h4 class="symbol"></h4>
+                  <h4></h4>
+                  <h4></h4>
+                </li>
+                <li>
+                  <img id="token-img" src="" alt="Anonymous Token" width="32" height="32" />
+                  <h4 id="token-name"></h4>
+                  <p id="token-price-average">$-</p>
+                  <p class="negative" id="token-price-24h">-%</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div id="transactions" class="flex column start">
+              <h1 class="logo">
+                Transactions
+              </h1>
+            <ul></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="src/js/env.js"></script>
+    <script defer>
+      (async () => {
+
+        const { PEER_LIST } = window.env;
+        const peers = {};
+
+        await Promise.all(
+          Object.keys(PEER_LIST).map(async address => {
+            let infoResponse, priceResponse;
+
+            const peerUrl = PEER_LIST[address];
+
+            const infoResult = await fetch(`${peerUrl}/info`);
+
+            if (infoResult && infoResult.status === 200) {
+              infoResponse = await infoResult.json();
+
+              const priceResult = await fetch(`${PEER_LIST[address]}/price`);
+
+              if (priceResult && priceResult.status === 200) {
+                priceResponse = await priceResult.json();
+
+                if (infoResponse && priceResponse) {
+                  peers[address] = {
+                    tokenAddress: address,
+                    tokenName: infoResponse.name,
+                    tokenLogo: infoResponse.logo,
+                    tokenDenomination: infoResponse.denomination,
+                    tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
+                    tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination)
+                  }
+                }
+              }
+            }
+          })
+        );
+
+        // Dependencies
+
+        const dollar = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        });
+
+        // Parse params
+
+        const params = window.location.search
+          .replace('?', '&')
+          .split('&')
+          .filter(Boolean);
+
+        const appNames = [
+          'shop',
+          'market',
+          'transactions'
+        ];
+
+        let appName = params[0]?.replace('app=', '');
+
+        if (!appName) {
+          appName = appNames[0];
+          window.location.href = `?app=${appName}`;
+
+          return;
+        }
+
+        let isNotification = JSON.parse(
+          sessionStorage.getItem('isNotification') || true
+        );
+
+        // Select elements
+
+        const tabs = document.getElementById('tabs');
+        const tabButton = document.getElementById('tab-button');
+        const content = document.getElementById('content');
+        const frame = document.getElementById('frame');
+        const notification = document.getElementById('notification');
+        const email = document.getElementById('email');
+        const signup = document.getElementById('signup');
+
+        // Select wallet elements
+
+        const cardList = document.querySelector('.card-list');
+
+        // Set tab button
+
+        const onOpen = () => {
+          tabButton.setAttribute('class', 'open');
+          tabs.setAttribute('class', 'open');
+          tabButton.onclick = onClose;
+          tabButton.innerHTML = '';
+
+          setTimeout(() => (
+            tabButton.innerHTML = '✕'
+          ), 300);
+        };
+
+        const onClose = () => {
+          tabButton.removeAttribute('class');
+          tabs.removeAttribute('class');
+          tabButton.onclick = onOpen;
+          tabButton.innerHTML = '';
+
+          setTimeout(() => (
+            tabButton.innerHTML = '☰'
+          ), 300);
+        };
+
+        tabButton.onclick = onOpen;
+
+        // Handle mobile viewport resize
+
+        const onResize = () => {
+          const isFocused = Boolean(
+            document.querySelectorAll('input:focus').length
+          );
+
+          setTimeout(() => {
+            frame.setAttribute('style', `max-height: ${window.innerHeight}px`);
+
+            if (!isFocused) {
+              window.scrollTo(0, 0);
+            }
+          }, 500);
+        };
+
+        const isMobile = (
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        );
+
+        if (isMobile) {
+          document.addEventListener('touchmove', event => {
+            if (event.scale !== 1) {
+              event.preventDefault();
+            }
+          }, { passive: false });
+
+          window.onresize = onResize;
+        }
+
+        // Retain app frames
+
+        const apps = Object.assign(
+          ...[].map.call(
+            frame.children,
+
+            appFrame => ({
+              [appFrame.id]: appFrame.outerHTML
+            })
+          )
+        );
+
+        // Load saved session
+
+        let user = JSON.parse(
+          localStorage.getItem('user') || '{}'
+        );
+
+        // Login
+
+        const onLogin = async event => {
+          event.preventDefault();
+
+          const isValid = (
+            username.value.length >= 3 &&
+            password.value.length >= 6
+          );
+
+          if (!isValid) {
+            auth.setAttribute('class', 'no');
+
+            return;
+          }
+
+          const authResult = await fetch('/auth', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: username.value,
+              password: password.value
+            })
+          });
+
+          if (authResult && authResult.status === 200) {
+            const authResponse = await authResult.json();
+
+            return onAuth(authResponse);
+          }
+        };
+
+        auth.onsubmit = event => {
+          event.preventDefault();
+
+          return false;
+        };
+
+        auth.onkeydown = event => {
+          if (event.keyCode === 13) {
+            onLogin(event);
+          }
+        };
+
+        login.onclick = onLogin;
+
+        // Register
+
+        const onRegister = async event => {
+          event.preventDefault();
+
+          const isValid = (
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          ).test(email.value);
+
+          if (!isValid) {
+            signup.setAttribute('class', 'no');
+
+            return;
+          }
+
+          const signupResult = await fetch('/register', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: email.value
+            })
+          });
+
+          if (signupResult && signupResult.status === 200) {
+            notification.innerHTML = `A temporary password was sent to ${email.value}.`;
+            notification.setAttribute('class', 'show');
+            setTimeout(() => notification.removeAttribute('class'), 5000);
+            email.value = '';
+            signup.parentElement.removeChild(signup);
+            auth.removeAttribute('class');
+          }
+        };
+
+        signup.onsubmit = event => {
+          event.preventDefault();
+
+          return false;
+        };
+
+        signup.onkeydown = event => {
+          if (event.keyCode === 13) {
+            onRegister(event);
+          }
+        };
+
+        create.onclick = event => {
+          auth.setAttribute('class', 'hide');
+          signup.removeAttribute('class');
+        };
+
+        register.onclick = onRegister;
+
+        // Set currently active app
+
+        const setApp = async () => {
+          // Render page title
+
+          document.title = `${appName.replace(appName[0], appName[0].toUpperCase())} | Native Ember Token`;
+
+          // Render tabs
+
+          tabs.innerHTML += appNames
+            .map(tab => (
+              `<li${tab === appName ? ' class="active"' : ''}><a href="?app=${tab}">${tab}</a></li>`
+            ))
+            .join('');
+
+          // Render app frame
+
+          frame.innerHTML = apps[appName];
+
+          // Handle render card list
+
+          const renderCardList = () => {
+            if (!user?.userData?.cards) {
+
+              return false;
+            }
+
+            requestAnimationFrame(() => {
+              cardList.innerHTML = user.userData.cards
+                .map(card => {
+                  if (!card?.processor) return;
+
+                  const balance = user.userData[(
+                    card.processor === 'EMBR'
+                      ? 'embrBalance'
+                      : 'usdBalance'
+                  )];
+
+                  const {
+                    name,
+                    number,
+                    processor,
+                    currency
+                  } = card;
+
+                  return `
+                    <li class="card ${processor.toLowerCase()}" data-id="${number}" title="Balance: ${balance} ${currency.toUpperCase()}">
+                      <p class="number">${number}</p>
+                      <span class="details">
+                        <p>${name}</p>
+                        <!-- <img src="${processor.toLowerCase()}" alt="${processor}" width="72" height="36" /> -->
+                      </span>
+                    </li>
+                  `;
+                })
+                .join('');
+
+              cardList.innerHTML += (`
+                <li class="card new">
+                  <button id="add-card">
+                    + Add Card
+                  </button>
+                </li>
+              `);
+            });
+
+            return true;
+          };
+
+          // Handle card list interactions
+
+          const bindCardListEvents = () => {
+            // Select elements
+
+            const addCardButton = document.getElementById('add-card');
+            const saveCardButton = document.getElementById('save-card');
+            const cardNumber = document.getElementById('card-number');
+            const cardName = document.getElementById('card-name');
+            const cardExpiration = document.getElementById('card-expiration');
+            const cardCVV = document.getElementById('card-cvv');
+
+            // Add card
+
+            const onClickCloseOverlay = () => {
+              overlay.removeAttribute('class');
+              saveCardButton.onclick = null;
+              content.onclick = null;
+            };
+
+            const onClickOutsideOverlay = event => {
+              if (
+                event.target.id !== 'add-card-overlay' &&
+                event.target.parentElement.id !== 'add-card-overlay'
+              ) {
+                onClickCloseOverlay();
+              }
+            };
+
+            const onClickSaveCard = async event => {
+              event.preventDefault();
+
+              const cardResult = await fetch('/fern/card', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  username: user.username,
+                  token: user.token,
+                  card: {
+                    number: cardNumber.value,
+                    name: cardName.value,
+                    expiration: cardExpiration.value,
+                    cvv: cardCVV.value
+                  }
+                })
+              });
+
+              if (cardResult && cardResult.status === 200) {
+                const cardResponse = await cardResult.json();
+
+                cardNumber.value = '';
+                cardName.value = '';
+                cardExpiration.value = '';
+                cardCVV.value = '';
+                user = cardResponse?.user;
+
+                if (!renderCardList()) {
+                  notification.innerHTML = 'Error fetching cards.';
+                  notification.setAttribute('class', 'show');
+                  setTimeout(() => notification.removeAttribute('class'), 5000);
+                }
+
+                requestAnimationFrame(() => {
+                  bindCardListEvents();
+                  onClickCloseOverlay();
+                  localStorage.setItem('user', JSON.stringify(user));
+                });
+              }
+            };
+
+            const onClickAddCard = () => {
+              overlay.setAttribute('class', 'show');
+
+              requestAnimationFrame(() => {
+                content.onclick = onClickOutsideOverlay;
+                saveCardButton.onclick = onClickSaveCard;
+              });
+            };
+
+            addCardButton.onclick = onClickAddCard;
+          }
+
+          // Handle render price
+
+          const renderPrice = priceData => {
+            const priceAverage = document.getElementById('price-average');
+            const price24h = document.getElementById('price-24h');
+            const priceMarketCap = document.getElementById('price-market-cap');
+
+            const percentChange = (
+              (1 - priceData.price24hAgo / priceData.price) * 100
+            );
+
+            const currentPrice = parseFloat(
+              (parseFloat(priceData.price) + priceData.price * .1).toFixed(2)
+            );
+
+            const cap = parseFloat(
+              parseFloat(priceData.marketCap) + parseFloat(priceData.marketCap * .1)
+            );
+
+            priceAverage.innerHTML = `${dollar.format(currentPrice)}`;
+            price24h.innerHTML = `${percentChange.toFixed(2)}%`;
+            priceMarketCap.innerHTML = `${dollar.format(cap).replace('.00', '')}`;
+            price24h.setAttribute('class', percentChange > 0 ? 'positive' : 'negative');
+          };
+
+          // Handle render token
+
+          const renderToken = async ({
+            tokenInfo: {
+              address,
+              name,
+              logo,
+              denomination
+            },
+            priceData: {
+              price,
+              price24hAgo
+            }
+          }) => {
+            price = price / denomination;
+            price24hAgo = price24hAgo / denomination;
+
+            const percentChange = (1 - price24hAgo / price) * 100;
+
+            const currentPrice = parseFloat(
+              (parseFloat(price) + price * .1).toFixed(2)
+            );
+
+            let ledger, tokens = {}, marketCaps = {};
+
+            const transactionsResult = await fetch('/transactions');
+
+            if (transactionsResult && transactionsResult.status === 200) {
+              const transactionsResponse = await transactionsResult.json();
+
+              if (!transactionsResponse?.success) return;
+
+              ledger = transactionsResponse.body;
+
+              ledger
+              .forEach(({
+                senderAddress,
+                recipientAddress,
+                tokenAddress,
+                embrAmount,
+                currency
+              }) => {
+                if (currency === 'usd') return;
+
+                const tokenDenomination = tokenAddress === address
+                  ? denomination
+                  : peers[tokenAddress].tokenDenomination;
+
+                const tokenAmount = embrAmount * parseFloat(tokenDenomination);
+
+                if (marketCaps[tokenAddress] === undefined) {
+                  marketCaps[tokenAddress] = 0;
+                }
+
+                if (tokens[tokenAddress] === undefined) {
+                  tokens[tokenAddress] = 0;
+                }
+
+                if (senderAddress.match('treasury')) {
+                  marketCaps[tokenAddress] += tokenAmount;
+                }
+
+                if (recipientAddress.match('treasury')) {
+                  marketCaps[tokenAddress] -= tokenAmount;
+                }
+
+                if (senderAddress === user.userData.address) {
+                  tokens[tokenAddress] -= tokenAmount;
+                }
+
+                if (recipientAddress === user.userData.address) {
+                  tokens[tokenAddress] += tokenAmount;
+                }
+              });
+
+              const ownership = (
+                tokens[address] / marketCaps[address] * 100
+              );
+
+              prices.innerHTML = `
+                <li>
+                  <h4 class="img">Token</h4>
+                  <h4 class="symbol"></h4>
+                  <h4></h4>
+                  <h4></h4>
+                </li>
+                <li>
+                  <img class="token-img" src=${logo} alt=${name} width="32" height="32" />
+                  <h4 id="token-name">${name}</h4>
+                  <p id="token-price-average">${dollar.format(currentPrice)}</p>
+                  <p class=${percentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${percentChange.toFixed(2)}%</p>
+                </li>
+                <li class="progress flex start" title="${`${tokens[address].toFixed(2)} | ${dollar.format(tokens[address] * currentPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
+                  <span style="max-width: ${ownership}%;"></span>
+                </li>
+                ${
+                  Object.keys(tokens)
+                    .filter(token => token !== address)
+                    .map(token => {
+                      const {
+                        tokenLogo,
+                        tokenName,
+                        tokenAddress,
+                        tokenPrice,
+                        tokenPrice24Ago
+                      } = peers[token];
+
+                      const tokenOwnership = (
+                        tokens[token] / marketCaps[token] * 100
+                      );
+
+                      const tokenPercentChange = (1 - tokenPrice24Ago / tokenPrice) * 100;
+
+                      const currentTokenPrice = parseFloat(
+                        (parseFloat(tokenPrice) + tokenPrice * .1).toFixed(2)
+                      );
+
+                      return `
+                        <li>
+                          <img class="token-img" src=${tokenLogo} alt=${tokenName} width="32" height="32" />
+                          <h4 id="token-name">${tokenName}</h4>
+                          <p id="token-price-average">${dollar.format(currentTokenPrice)}</p>
+                          <p class=${tokenPercentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${tokenPercentChange.toFixed(2)}%</p>
+                        </li>
+                        <li class="progress flex start" title="${`${tokens[token].toFixed(2)} | ${dollar.format(tokens[token] * currentTokenPrice)} | ${(tokens[token] / marketCaps[token] * 100).toFixed(2)}% Market Share`}">
+                          <span style="max-width: ${tokenOwnership}%;"></span>
+                        </li>
+                      `;
+                    })
+                }
+              `;
+            }
+          };
+
+          // Handle app onActive
+
+          switch (appName) {
+            case 'shop':
+              notification.innerHTML = 'Available soon.';
+              notification.setAttribute('class', 'show');
+              setTimeout(() => notification.removeAttribute('class'), 5000);
+
+              break;
+            case 'market':
+              // Select elements
+
+              const market = document.getElementById('market');
+              const prices = document.getElementById('prices');
+              const buyCoinButton = document.getElementById('buy-coin-button');
+
+              // Render coin price
+
+              let priceResponse = {};
+
+              const priceResult = await fetch('/price');
+
+              if (priceResult && priceResult.status === 200) {
+                priceResponse = await priceResult.json();
+
+                renderPrice(priceResponse.body);
+              }
+
+              // Render token info
+
+              let infoResponse = {};
+
+              const infoResult = await fetch('/info');
+
+              if (infoResult && infoResult.status === 200) {
+                infoResponse = await infoResult.json();
+
+                renderToken({
+                  tokenInfo: infoResponse,
+                  priceData: priceResponse.body
+                });
+              }
+
+              // Handle buy coin
+
+              const onClickBuyCoin = async () => {
+                if (!renderCardList()) {
+                  notification.innerHTML = 'Error fetching cards.';
+                  notification.setAttribute('class', 'show error');
+                  setTimeout(() => notification.removeAttribute('class'), 5000);
+
+                  return;
+                }
+
+                const priceResult = await fetch('/price');
+
+                if (!priceResult || priceResult.status !== 200) return;
+
+                const priceResponse = await priceResult.json();
+
+                requestAnimationFrame(() => {
+                  const frondWalletOverlay = document.createElement('div');
+                  const frondWalletOverlayStyles = document.createElement('style');
+
+                  frondWalletOverlay.setAttribute('class', 'frond-wallet-overlay');
+                  frondWalletOverlayStyles.setAttribute('scoped', true);
+
+                  frondWalletOverlayStyles.innerHTML = `
+                    .frond-wallet-overlay {
+                      position: fixed;
+                      background: rgba(0, 0, 0, .8);
+                      left: 220px;
+                      right: 0;
+                      top: 0;
+                      bottom: 0;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      flex-direction: column;
+                      z-index: 1000;
+                    }
+                    .frond-wallet {
+                      display: flex;
+                      flex-direction: column;
+                      background: #111;
+                      box-shadow: 0 0 1rem black;
+                      border-radius: 0.5rem;
+                      border: 1px solid black;
+                      padding: 1rem;
+                      margin: 2rem;
+                      overflow: auto;
+                    }
+                    @media (max-width: 900px) {
+                      .frond-wallet-overlay {
+                        left: 0;
+                      }
+                    }
+                  `;
+
+                  frondWalletOverlay.innerHTML = `
+                    <div class="frond-wallet">
+                      <h3>Payment Method</h3>
+                      ${cardList.outerHTML}
+                    </div>
+                  `;
+
+                  frame.insertBefore(frondWalletOverlayStyles, frame.firstElementChild);
+                  frame.insertBefore(frondWalletOverlay, frondWalletOverlayStyles.nextElementSibling);
+
+                  // Bind card events
+
+                  bindCardListEvents();
+
+                  [].forEach.call(
+                    document.querySelectorAll('.card-list > .card:not(.new)'),
+                    card => {
+                      const { id } = card.dataset;
+                      const { price } = priceResponse;
+                      const embrAmount = 1;
+
+                      const usdAmount = parseFloat(
+                        (parseFloat(price) + price * .1).toFixed(2)
+                      );
+
+                      card.onclick = async () => {
+                        const buyResult = await fetch('/transaction', {
+                          method: 'POST',
+                          headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            username: user.username,
+                            token: user.token,
+                            recipient: 'YOUR_USERNAME',
+                            recipientAddress: 'YOUR_TOKEN_ADDRESS',
+                            tokenAddress: 'TARGET_TOKEN_ADDRESS_(YOURS)',
+                            currency: 'usd',
+                            usdAmount,
+                            embrAmount,
+                            cardNumber
+                          })
+                        });
+
+                        if (buyResult && buyResult.status === 200) {
+                          const buyResponse = await buyResult.json();
+
+                          notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
+                          notification.setAttribute('class', 'show');
+                          renderPrice(buyResponse);
+                        } else {
+                          notification.innerHTML = `There was a problem processing that card.`;
+                          notification.setAttribute('class', 'show error');
+                        }
+
+                        walletOverlay.remove();
+                        setTimeout(() => notification.removeAttribute('class'), 5000);
+                      };
+                    }
+                  );
+
+                  // Bind wallet events
+
+                  const walletOverlay = document.querySelector('.frond-wallet-overlay');
+
+                  walletOverlay.onclick = event => {
+                    if (
+                      event.target.localName === 'body' ||
+                      event.target.className === 'frond-wallet-overlay'
+                    ) {
+                      walletOverlay.remove();
+                    }
+                  };
+                });
+              };
+
+              buyCoinButton.onclick = () => onClickBuyCoin();
+
+              break;
+
+            case 'transactions':
+              let ledger;
+
+              const transactionsResult = await fetch('/transactions');
+
+              if (transactionsResult && transactionsResult.status === 200) {
+                const transactionsResponse = await transactionsResult.json();
+
+                if (!transactionsResponse?.success) return;
+
+                ledger = transactionsResponse.body.reverse();
+              }
+
+              const transactions = document.querySelector('#transactions > ul');
+
+              transactions.innerHTML = `
+                ${ledger.map(({
+                  hash,
+                  next,
+                  embrAmount,
+                  currency,
+                  currentPrice,
+                  recipientAddress,
+                  senderAddress,
+                  timestamp,
+                  usdAmount
+                }) => `
+                  <li class="transaction block">
+                    <span class="flex start">
+                      <span>
+                        <p>
+                          Hash:
+                          <a href="/transactions" target="_blank">
+                            ${hash}
+                          </a>
+                        </p>
+                        <p>
+                          Next:
+                          ${next
+                            ? (
+                              `<a href="/transactions" target="_blank">
+                                ${next}
+                              </a>`
+                            ) : '-'}
+                        </p>
+                      </span>
+                      <p class="right">Currency: <span>${currency}</span></p>
+                    </span>
+                    <span class="hr"></span>
+                    <ul>
+                      <li>Sender: ${senderAddress}</li>
+                      <li>Recipient: ${recipientAddress}</li>
+                    </ul>
+                    <span class="hr"></span>
+                    <ul>
+                      <li>EMBR Amount: ${embrAmount}</li>
+                      <li>USD Amount: ${usdAmount}</li>
+                      <li>Current Price: ${currentPrice}</li>
+                    </ul>
+                  </li>
+                `).join('')}
+              `;
+
+              break;
+
+            default:
+              break;
+          }
+        };
+
+        // Handle authentication
+
+        const onAuth = response => {
+          user = response?.user;
+
+          if (!user?.username) return;
+
+          if (auth?.parentElement) {
+            if (isNotification) {
+              notification.innerHTML = `Welcome back, ${user.username}.`;
+              notification.setAttribute('class', 'show');
+              setTimeout(() => notification.removeAttribute('class'), 5000);
+            }
+
+            username.value = '';
+            password.value = '';
+            auth.parentElement.removeChild(auth);
+            content.setAttribute('class', 'authed full-vh');
+            frame.removeAttribute('class');
+            onResize();
+          }
+
+          setApp();
+
+          localStorage.setItem('user', JSON.stringify(user));
+          sessionStorage.setItem('isNotification', 'false');
+        };
+
+        // Token Authentication
+
+        if (user?.token && auth?.parentElement) {
+          const authResult = await fetch('/auth', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: user.username,
+              token: user.token
+            })
+          });
+
+          if (authResult && authResult.status === 200) {
+            const authResponse = await authResult.json();
+
+            return onAuth(authResponse);
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>

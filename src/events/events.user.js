@@ -51,12 +51,7 @@
         },
         {
           status: code => ({
-            end: () => ({
-              error: {
-                code,
-                message: '<Native Ember Token> Service error (POST).'
-              }
-            })
+            end: () => `<Native Ember Token> Service error (${code}/POST).`
           }),
           send: body => ({
             status: 200,

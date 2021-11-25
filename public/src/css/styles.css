@@ -1,0 +1,644 @@
+#tabs > li > .icon {
+  background-image: url("../icon.png");
+}
+
+#tabs > li:not(:first-of-type) > a {
+  text-transform: capitalize;
+}
+
+#tabs > li.active {
+  border-color: #ffa500;
+}
+
+#tabs > li.active > a {
+  color: #ffa500;
+  font-style: italic;
+}
+
+#notification {
+  background: #ffa500;
+  text-shadow: 0 1px 0 #ec2c00;
+}
+
+body {
+  font: normal normal 15px "Raleway", sans-serif;
+  background: #282d41;
+}
+
+a {
+  color: #ffa500;
+  font-weight: 800;
+}
+
+h1:not(#branding),
+h1:not(#branding) > .logo,
+#wallet > p,
+#trading > p {
+  text-align: left;
+  margin: 1rem 0;
+  opacity: .25;
+  width: 100%;
+}
+
+.button-group {
+  text-align: center;
+  margin: 2rem auto;
+}
+
+.button-group > a > span {
+  display: inline-block;
+  transform: rotateX(180deg);
+}
+
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  width: 19rem;
+  height: 12rem;
+  background: linear-gradient(to bottom, #00ffff, #2196f3);
+  margin: 1rem;
+  padding: 2rem;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.card.embr {
+  background: linear-gradient(to bottom, #111, #000);
+}
+
+.card:not(.new) {
+  box-shadow: inset 0 1px rgb(255 255 255 / 50%), 0 2px 1rem rgb(0 10 100);
+}
+
+.card > .number,
+.card > .details {
+  font-weight: 400;
+  font-family: monospace;
+  text-shadow: 0 1px #1e69b3;
+}
+
+.card > .number {
+  flex: 1;
+  align-self: flex-start;
+}
+
+.card > .details {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-height: 36px;
+}
+
+.card.new {
+  display: block;
+  background: transparent;
+  border: 1px dashed white;
+  line-height: 12rem;
+  text-align: center;
+  padding: 0;
+  opacity: .5;
+}
+
+.card.new > button {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: white;
+}
+
+.card p {
+  margin: 0;
+}
+
+#frame {
+  color: white;
+  width: 100%;
+  height: 100%;
+  transition: max-height .5s ease;
+}
+
+#auth.hide,
+#signup.hide,
+#frame.hide {
+  display: none;
+}
+
+#wallet,
+#market {
+  width: 100%;
+}
+
+#market {
+  padding-bottom: 0.1rem;
+}
+
+#price,
+#prices {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: calc(100% - 2rem);
+  margin-bottom: 3rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #181c28;
+}
+
+#price > li,
+#prices > li,
+#token-prices > li,
+#fiat-prices > li {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+#price > li > *,
+#prices > li > * {
+  flex: 1;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+#price > li:not(:first-of-type) > * {
+  font-family: "Forum", serif;
+  font-size: 1.1em;
+}
+
+#prices > li > * {
+  text-align: right;
+}
+
+#price > li > h4:last-of-type,
+#price > li > p:last-of-type,
+#prices > li > h4:last-of-type,
+#prices > li > p:last-of-type {
+  max-width: 5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#prices > li > h4:last-of-type {
+  text-align: left;
+}
+
+#prices > li > p:last-of-type {
+  margin-left: 1rem;
+}
+
+#price > li > img,
+#price > li > .img,
+#prices > li > img,
+#prices > li > .img {
+  max-width: 32px;
+  max-height: 32px;
+  margin-right: 10px;
+}
+
+#price > li > img,
+#prices > li > img {
+  object-fit: contain;
+  object-position: center center;
+}
+
+#prices > li > img {
+  border-radius: 100vw;
+}
+
+#price > li > h3,
+#prices > li > h3 {
+  text-transform: uppercase;
+}
+
+#prices > li > p {
+  font-family: "Forum", serif;
+}
+
+#price > li > p.negative,
+#prices > li > p.negative {
+  color: #f44336;
+}
+
+#price > li > p.positive,
+#prices > li > p.positive {
+  color: #4caf50;
+}
+
+#buy-coin-button,
+#prices > li > p > button {
+  appearance: none;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+#prices > li.progress {
+  flex: none;
+  margin: 0 0 1rem;
+  background: #010101;
+  border-radius: 100vw;
+  overflow: hidden;
+}
+
+#prices > li.progress > span {
+  flex: 1;
+  display: block;
+  background: #ffa500;
+  border-radius: inherit;
+  height: .5rem;
+}
+
+#buy-coin-button {
+  border: none;
+  background: #ffa500;
+}
+
+#buy-coin-button[disabled],
+#prices > li > p > button[disabled] {
+  background: transparent;
+  border: 2px solid white;
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+#trading {
+  margin: 1rem;
+  width: 100%;
+}
+
+.segmented-control {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  width: 20rem;
+  max-width: 90vw;
+}
+
+.segmented-control > li {
+  text-align: center;
+  border: 1px solid white;
+  padding: .5rem;
+  font: 600 normal 0.6em "Raleway", sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.segmented-control > li.active {
+  background: white;
+  color: #282d41;
+}
+
+.segmented-control > li:first-of-type {
+  border-top-left-radius: 100vw;
+  border-bottom-left-radius: 100vw;
+}
+
+.segmented-control > li:last-of-type {
+  text-align: center;
+  border: 1px solid white;
+  border-top-right-radius: 100vw;
+  border-bottom-right-radius: 100vw;
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, .25);
+}
+
+.segmented-view {
+  margin: 0 0 4rem;
+}
+
+.segmented-view > * {
+  display: none;
+}
+
+.segmented-view > div.active {
+  display: flex;
+}
+
+.segmented-view > div > div {
+  text-align: right;
+  margin: 0 0 0 1rem;
+  font: 100 normal 8em "Raleway", sans-serif;
+  opacity: .25;
+}
+
+.segmented-view > div > div > h4,
+.segmented-view > div > div > p {
+  margin: 0;
+  font-size: .6em;
+}
+
+.segmented-view > div > div > h4 {
+  font-size: .125em;
+}
+
+.segmented-view > div > div:first-of-type,
+.segmented-view > div > div:last-of-type {
+  margin: 0;
+}
+
+.segmented-view > div > div:first-of-type {
+  opacity: 1;
+}
+
+.segmented-view > div > div:last-of-type {
+  text-align: left;
+  margin-left: -2.5rem;
+  font-weight: 200;
+  opacity: .5;
+}
+
+.segmented-view > div > div:last-of-type > h4 {
+  font-size: .075em;
+}
+
+.segmented-view > div > div:last-of-type > p {
+  font-size: .15em;
+}
+
+#footer {
+  position: fixed;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  bottom: 0;
+  height: 50px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size:  0.75em;
+  background: black;
+  color: white;
+}
+
+#auth,
+#signup {
+  flex: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  max-height: 100%;
+  width: 200px;
+  opacity: 0;
+  animation: fadeIn .5s .5s forwards;
+  transition: transform 1s linear;
+}
+
+#auth > *,
+#signup > * {
+  width: 100%;
+  margin: 5px;
+  padding: 10px;
+  height: 2rem;
+  appearance: none;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+#auth > div > a,
+#signup > div > a {
+  display: block;
+  text-align: center;
+}
+
+#login,
+#register {
+  line-height: 2rem;
+  padding: 0;
+  background: #ffa500;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 0 #ec2c00;
+}
+
+#auth.no,
+#signup.no {
+  animation: shakeLeftRight 1s forwards ease;
+  opacity: 1;
+}
+
+#auth.no > *,
+#signup.no > * {
+  transition: border 1s ease, background 1s ease;
+}
+
+#auth.no #username,
+#auth.no #password,
+#signup.no #email,
+#signup.no #password1,
+#signup.no #password2 {
+  border: 1px solid red;
+}
+
+#auth.no #login,
+#signup.no #register {
+  background: red;
+  text-shadow: none;
+}
+
+#auth.hide,
+#signup.hide {
+  display: none;
+}
+
+#create {
+  display: block;
+  appearance: none;
+  background: none;
+  border: none;
+  text-align: center;
+  color: #ffa500;
+  font-size: .8em;
+  width: 100%;
+}
+
+#create:hover {
+  text-decoration: underline;
+}
+
+#branding {
+  display: block;
+  background: url('../icon.png') center center / contain no-repeat;
+  border-radius: 15px;
+  width: 80px;
+  height: 80px;
+  margin: 10px;
+  padding: 2px !important;
+  text-indent: -100vw;
+  font-size: 0;
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+#overlay.show {
+  display: flex;
+}
+
+#add-card-overlay {
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 30rem;
+  height: 19rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 220px;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 1rem;
+}
+
+#add-card-overlay > input,
+#save-card {
+  background: rgba(255, 255, 255, .5);
+  color: #2196f3;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%);
+  width: 100%;
+  margin: 0;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: .75em;
+  font-weight: 600;
+}
+
+#add-card-overlay > input::placeholder {
+  color: #2196f3;
+}
+
+#add-card-overlay > input:nth-of-type(3),
+#add-card-overlay > input:nth-of-type(4) {
+  max-width: 25%;
+}
+
+#save-card {
+  background: white;
+  color: #2196f3;
+  font-weight: 600;
+}
+
+#transactions {
+  max-height: 100vh;
+  width: 100%;
+}
+
+#transactions > ul {
+  list-style: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: monospace;
+  font-weight: 200;
+  font-size: .8em;
+  max-width: calc(100vw - 25px);
+}
+
+#transactions > ul > li.transaction.block {
+  background: #141720;
+  border-left: 3px solid #ffa500;
+  color: white;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  overflow: auto;
+}
+
+#transactions > ul > li.transaction.block > ul {
+  list-style: none;
+  padding: 0;
+}
+
+#transactions > ul > li.transaction.block > span > p > span {
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .card-list {
+    display: block;
+  }
+
+  .card {
+    margin: 2rem auto;
+  }
+
+  .logo {
+    padding: 1rem;
+  }
+
+  .segmented-view > div > div {
+    font-size: 6em;
+  }
+
+  #add-card-overlay {
+    margin: 1rem;
+  }
+
+  #price,
+  #prices,
+  #trading > p {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    font-size: .9em;
+  }
+
+  #price > li,
+  #prices > li {
+    overflow: auto;
+  }
+
+  #price > li > *,
+  #prices > li > * {
+    overflow: hidden;
+  }
+
+  #prices > li > h3,
+  #prices > li > .symbol {
+    display: none;
+  }
+
+  #transactions > ul {
+    margin: 12.5px;
+  }
+}
