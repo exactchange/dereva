@@ -166,9 +166,7 @@ h1:not(#branding) > .logo,
 }
 
 #price > li,
-#prices > li,
-#token-prices > li,
-#fiat-prices > li {
+#prices > li {
   flex: 1;
   overflow: hidden;
   display: flex;
