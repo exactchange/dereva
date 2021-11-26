@@ -133,6 +133,7 @@
       </div>
     </section>
     <script src="src/js/fern-sdk.js"></script>
+    <script src="src/js/identity-sdk.js"></script>
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
@@ -256,11 +257,15 @@
         // Load Frond wallet
 
         const { Frond } = FernSDK;
+        let frond;
+
+        // Load Authentication library
+        const { Authentication } = IdentitySDK;
+        let authentication;
 
         // Find peer tokens
 
         const { PEER_LIST } = window.env;
-
         const peers = {};
 
         await Promise.all(
@@ -294,115 +299,11 @@
           })
         );
 
-        let frond;
-
-        // Login
-
-        const onLogin = async event => {
-          event.preventDefault();
-
-          const isValid = (
-            username.value.length >= 3 &&
-            password.value.length >= 6
-          );
-
-          if (!isValid) {
-            auth.setAttribute('class', 'no');
-
-            return;
-          }
-
-          const authResult = await fetch('/auth', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              username: username.value,
-              password: password.value
-            })
-          });
-
-          if (authResult && authResult.status === 200) {
-            const authResponse = await authResult.json();
-
-            return onAuth(authResponse);
-          }
-        };
-
-        auth.onsubmit = event => {
-          event.preventDefault();
-
-          return false;
-        };
-
-        auth.onkeydown = event => {
-          if (event.keyCode === 13) {
-            onLogin(event);
-          }
-        };
-
-        login.onclick = onLogin;
-
-        // Register
-
-        const onRegister = async event => {
-          event.preventDefault();
-
-          const isValid = (
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-          ).test(email.value);
-
-          if (!isValid) {
-            signup.setAttribute('class', 'no');
-
-            return;
-          }
-
-          const signupResult = await fetch('/register', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              username: email.value
-            })
-          });
-
-          if (signupResult && signupResult.status === 200) {
-            notification.innerHTML = `A temporary password was sent to ${email.value}.`;
-            notification.setAttribute('class', 'show');
-            setTimeout(() => notification.removeAttribute('class'), 5000);
-            email.value = '';
-            signup.parentElement.removeChild(signup);
-            auth.removeAttribute('class');
-          }
-        };
-
-        signup.onsubmit = event => {
-          event.preventDefault();
-
-          return false;
-        };
-
-        signup.onkeydown = event => {
-          if (event.keyCode === 13) {
-            onRegister(event);
-          }
-        };
-
-        create.onclick = event => {
-          auth.setAttribute('class', 'hide');
-          signup.removeAttribute('class');
-        };
-
-        register.onclick = onRegister;
-
         // Set currently active app
 
         const setApp = async () => {
+          const frame = document.getElementById('frame');
+
           // Render page title
 
           document.title = `${appName.replace(appName[0], appName[0].toUpperCase())} | Native Ember Token`;
@@ -418,6 +319,7 @@
           // Render app frame
 
           frame.innerHTML = apps[appName];
+
 
           // Handle render price
 
@@ -581,9 +483,16 @@
           // Handle app onActive
 
           switch (appName) {
-            case 'trade':
+            case 'shop':
+              notification.innerHTML = 'Available soon.';
+              notification.setAttribute('class', 'show');
+              setTimeout(() => notification.removeAttribute('class'), 5000);
+
+              break;
+            case 'market':
               // Select elements
 
+              const market = document.getElementById('market');
               const prices = document.getElementById('prices');
               const buyCoinButton = document.getElementById('buy-coin-button');
 
@@ -712,30 +621,75 @@
           }
         };
 
-        // Handle authentication
+        authentication = Authentication({
+          rootElement: content,
+          onAuth: response => {
+            user = response?.user;
 
-        const onAuth = response => {
-          user = response?.user;
+            if (!user || !user.username) return;
 
-          if (!user?.username) return;
+            const auth = document.getElementById('auth');
+            const frame = document.getElementById('frame');
 
-          // Frond wallet (Fern SDK)
+            // Frond wallet (Fern SDK)
 
-          const cardNumber = document.getElementById('card-number');
-          const cardName = document.getElementById('card-name');
-          const cardExpiration = document.getElementById('card-expiration');
-          const cardCVV = document.getElementById('card-cvv');
+            const cardNumber = document.getElementById('card-number');
+            const cardName = document.getElementById('card-name');
+            const cardExpiration = document.getElementById('card-expiration');
+            const cardCVV = document.getElementById('card-cvv');
 
-          frond = Frond({
-            rootElement: content,
-            notificationElement: notification,
-            onClickCard: async cardElement => {
-              cardElement.onclick = async () => {
-                const usdAmount = 10;
-                const embrAmount = 0.0001;
+            frond = Frond({
+              rootElement: content,
+              notificationElement: notification,
+              onClickCard: async cardElement => {
+                cardElement.onclick = async () => {
+                  const usdAmount = 10;
+                  const embrAmount = 0.0001;
 
-                const buyResult = await fetch('/transaction', {
-                  method: 'POST',
+                  const buyResult = await fetch('/transaction', {
+                    method: 'POST',
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      username: user.username,
+                      token: user.token,
+                      recipient: 'exactchange',
+                      recipientAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
+                      tokenAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
+                      currency: 'usd',
+                      usdAmount,
+                      embrAmount,
+                      cardNumber: cardElement.dataset.id
+                    })
+                  });
+
+                  if (buyResult && buyResult.status === 200) {
+                    const buyResponse = await buyResult.json();
+
+                    notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
+                    notification.setAttribute('class', 'show');
+                    renderPrice(buyResponse);
+                  } else {
+                    notification.innerHTML = `There was a problem processing that card.`;
+                    notification.setAttribute('class', 'show error');
+                  }
+
+                  document.querySelector('.frond-wallet-overlay').remove();
+                  setTimeout(() => notification.removeAttribute('class'), 5000);
+                }
+              },
+              onSaveCard: async () => {
+                const card = {
+                  number: cardNumber.value,
+                  name: cardName.value,
+                  expiration: cardExpiration.value,
+                  cvv: cardCVV.value
+                };
+
+                const cardResult = await fetch('/card', {
+                  method: 'PUT',
                   headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -743,107 +697,72 @@
                   body: JSON.stringify({
                     username: user.username,
                     token: user.token,
-                    recipient: 'exactchange',
-                    recipientAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
-                    tokenAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
-                    currency: 'usd',
-                    usdAmount,
-                    embrAmount,
-                    cardNumber: cardElement.dataset.id
+                    card
                   })
                 });
 
-                if (buyResult && buyResult.status === 200) {
-                  const buyResponse = await buyResult.json();
+                cardNumber.value = '';
+                cardName.value = '';
+                cardExpiration.value = '';
+                cardCVV.value = '';
 
-                  notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
-                  notification.setAttribute('class', 'show');
-                  renderPrice(buyResponse);
-                } else {
-                  notification.innerHTML = `There was a problem processing that card.`;
-                  notification.setAttribute('class', 'show error');
+                if (!cardResult || cardResult.status !== 200) {
+                  return false;
                 }
 
-                document.querySelector('.frond-wallet-overlay').remove();
-                setTimeout(() => notification.removeAttribute('class'), 5000);
+                return card;
               }
-            },
-            onSaveCard: async () => {
-              const card = {
-                number: cardNumber.value,
-                name: cardName.value,
-                expiration: cardExpiration.value,
-                cvv: cardCVV.value
-              };
+            });
 
-              const cardResult = await fetch('/card', {
-                method: 'PUT',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: user.username,
-                  token: user.token,
-                  card
-                })
-              });
-
-              cardNumber.value = '';
-              cardName.value = '';
-              cardExpiration.value = '';
-              cardCVV.value = '';
-
-              if (!cardResult || cardResult.status !== 200) {
-                return false;
-              }
-
-              return card;
-            }
-          });
-
-          if (auth?.parentElement) {
             if (isNotification) {
               notification.innerHTML = `Welcome back, ${user.username}.`;
               notification.setAttribute('class', 'show');
               setTimeout(() => notification.removeAttribute('class'), 5000);
             }
 
-            username.value = '';
-            password.value = '';
-            auth.parentElement.removeChild(auth);
             content.setAttribute('class', 'authed full-vh');
             frame.removeAttribute('class');
             onResize();
+            setApp();
+
+            localStorage.setItem('user', JSON.stringify(user));
+            sessionStorage.setItem('isNotification', 'false');
+          },
+          onSignup: response => {
+            const auth = document.getElementById('auth');
+            const email = document.getElementById('email');
+            const signup = document.getElementById('signup');
+
+            notification.innerHTML = `A temporary password was sent to ${email.value}.`;
+            notification.setAttribute('class', 'show');
+            setTimeout(() => notification.removeAttribute('class'), 5000);
+            email.value = '';
+            signup.parentElement.removeChild(signup);
+            auth.removeAttribute('class');
+          },
+          onLoad: () => {
+            if (user && user.token) {
+              authentication.onLogin(
+                {
+                  username: user.username,
+                  token: user.token
+                }
+              );
+
+              return;
+            } else {
+              authentication.onShow({
+                title: 'Native Ember Token'
+              });
+            }
+          },
+          paths: {
+            login: '/auth',
+            register: '/register'
           }
+        });
 
-          setApp();
-
-          localStorage.setItem('user', JSON.stringify(user));
-          sessionStorage.setItem('isNotification', 'false');
-        };
-
-        // Token Authentication
-
-        if (user?.token && auth?.parentElement) {
-          const authResult = await fetch('/auth', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              username: user.username,
-              token: user.token
-            })
-          });
-
-          if (authResult && authResult.status === 200) {
-            const authResponse = await authResult.json();
-
-            return onAuth(authResponse);
-          }
-        }
+        authentication.onLoad();
       })();
     </script>
   </body>

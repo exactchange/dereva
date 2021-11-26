@@ -58,5 +58,11 @@ module.exports = {
       code: 404,
       message: 'User not found.'
     }
+  },
+  UNPROCESSABLE_REQUEST: {
+    error: {
+      code: 422,
+      message: 'User not found.'
+    }
   }
 };

@@ -23,7 +23,8 @@
     INVALID_TOKEN_ERROR,
     USER_NOT_FOUND_ERROR,
     INSUFFICIENT_FUNDS,
-    UNAVAILABLE_TOKEN
+    UNAVAILABLE_TOKEN,
+    UNPROCESSABLE_REQUEST
   } = require('./errors');
 
   const {
@@ -124,7 +125,7 @@
           result = await userApi.getUser({ token });
 
           if (!result?.username) {
-            return USER_NOT_FOUND_ERROR;
+            return INVALID_TOKEN_ERROR;
           }
 
           userData = result.userData || {};
@@ -136,7 +137,7 @@
           });
 
           if (!result?.token) {
-            return INVALID_TOKEN_ERROR;
+            return SERVER_ERROR;
           }
 
           token = result.token;
@@ -157,7 +158,7 @@
         });
 
         if (!user.userData?.address) {
-          return USER_NOT_FOUND_ERROR;
+          return UNPROCESSABLE_REQUEST;
         }
 
         const priceResult = await userEvents.onServiceGet({
