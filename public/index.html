@@ -136,41 +136,6 @@
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
-        const { Frond } = FernSDK;
-        const { PEER_LIST } = window.env;
-
-        const peers = {};
-
-        await Promise.all(
-          Object.keys(PEER_LIST).map(async address => {
-            let infoResponse, priceResponse;
-
-            const peerUrl = PEER_LIST[address];
-
-            const infoResult = await fetch(`${peerUrl}/info`);
-
-            if (infoResult && infoResult.status === 200) {
-              infoResponse = await infoResult.json();
-
-              const priceResult = await fetch(`${PEER_LIST[address]}/price`);
-
-              if (priceResult && priceResult.status === 200) {
-                priceResponse = await priceResult.json();
-
-                if (infoResponse && priceResponse) {
-                  peers[address] = {
-                    tokenAddress: address,
-                    tokenName: infoResponse.name,
-                    tokenLogo: infoResponse.logo,
-                    tokenDenomination: infoResponse.denomination,
-                    tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
-                    tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination)
-                  }
-                }
-              }
-            }
-          })
-        );
 
         // Dependencies
 
@@ -286,6 +251,47 @@
 
         let user = JSON.parse(
           localStorage.getItem('user') || '{}'
+        );
+
+        // Load Frond wallet
+
+        const { Frond } = FernSDK;
+
+        // Find peer tokens
+
+        const { PEER_LIST } = window.env;
+
+        const peers = {};
+
+        await Promise.all(
+          Object.keys(PEER_LIST).map(async address => {
+            let infoResponse, priceResponse;
+
+            const peerUrl = PEER_LIST[address];
+
+            const infoResult = await fetch(`${peerUrl}/info`);
+
+            if (infoResult && infoResult.status === 200) {
+              infoResponse = await infoResult.json();
+
+              const priceResult = await fetch(`${PEER_LIST[address]}/price`);
+
+              if (priceResult && priceResult.status === 200) {
+                priceResponse = await priceResult.json();
+
+                if (infoResponse && priceResponse) {
+                  peers[address] = {
+                    tokenAddress: address,
+                    tokenName: infoResponse.name,
+                    tokenLogo: infoResponse.logo,
+                    tokenDenomination: infoResponse.denomination,
+                    tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
+                    tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination)
+                  }
+                }
+              }
+            }
+          })
         );
 
         let frond;
