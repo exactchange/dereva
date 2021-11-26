@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Market | Native Ember Token</title>
+    <title>Native Ember Token</title>
     <link rel="icon" href="./src/favicon.ico">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./src/icon.png">
@@ -54,10 +54,7 @@
           <div id="shop">
             Available soon.
           </div>
-          <div id="market" class="flex column">
-            <h1 class="logo">
-              Market
-            </h1>
+          <div id="trade" class="flex column">
             <ul class="segmented-control flex" data-name="account-balance">
               <li data-name="liquid" role="control" class="active">Liquid</li>
               <li data-name="net-worth" role="control" title="Available soon.">Net Worth</li>
@@ -121,7 +118,7 @@
                   <h4></h4>
                 </li>
                 <li>
-                  <img id="token-img" src="../media/questionmark.png" alt="Anonymous Token" width="32" height="32" />
+                  <img id="token-img" src="" alt="Anonymous Token" width="32" height="32" />
                   <h4 id="token-name"></h4>
                   <p id="token-price-average">$-</p>
                   <p class="negative" id="token-price-24h">-%</p>
@@ -130,19 +127,18 @@
             </div>
           </div>
           <div id="transactions" class="flex column start">
-              <h1 class="logo">
-                Transactions
-              </h1>
             <ul></ul>
           </div>
         </div>
       </div>
     </section>
+    <script src="src/js/fern-sdk.js"></script>
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
-
+        const { Frond } = FernSDK;
         const { PEER_LIST } = window.env;
+
         const peers = {};
 
         await Promise.all(
@@ -191,8 +187,7 @@
           .filter(Boolean);
 
         const appNames = [
-          'shop',
-          'market',
+          'trade',
           'transactions'
         ];
 
@@ -292,6 +287,8 @@
         let user = JSON.parse(
           localStorage.getItem('user') || '{}'
         );
+
+        let frond;
 
         // Login
 
@@ -415,220 +412,6 @@
           // Render app frame
 
           frame.innerHTML = apps[appName];
-
-          // Handle card list interactions
-
-          const bindCardListEvents = () => {
-            // Select elements
-
-            const addCardButton = document.getElementById('add-card');
-            const saveCardButton = document.getElementById('save-card');
-            const cardNumber = document.getElementById('card-number');
-            const cardName = document.getElementById('card-name');
-            const cardExpiration = document.getElementById('card-expiration');
-            const cardCVV = document.getElementById('card-cvv');
-
-            // Add card
-
-            const onClickCloseOverlay = () => {
-              overlay.removeAttribute('class');
-              saveCardButton.onclick = null;
-              content.onclick = null;
-            };
-
-            const onClickOutsideOverlay = event => {
-              if (
-                event.target.id !== 'add-card-overlay' &&
-                event.target.parentElement.id !== 'add-card-overlay'
-              ) {
-                onClickCloseOverlay();
-              }
-            };
-
-            const onClickSaveCard = async event => {
-              event.preventDefault();
-
-              const cardResult = await fetch('/card', {
-                method: 'PUT',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  username: user.username,
-                  token: user.token,
-                  card: {
-                    number: cardNumber.value,
-                    name: cardName.value,
-                    expiration: cardExpiration.value,
-                    cvv: cardCVV.value
-                  }
-                })
-              });
-
-              if (cardResult && cardResult.status === 200) {
-                const cardResponse = await cardResult.json();
-
-                cardNumber.value = '';
-                cardName.value = '';
-                cardExpiration.value = '';
-                cardCVV.value = '';
-                user = cardResponse?.user;
-
-                if (!renderCardList(document.querySelector('.frond-wallet-overlay > .frond-wallet'))) {
-                  notification.innerHTML = 'Error fetching cards.';
-                  notification.setAttribute('class', 'show');
-                  setTimeout(() => notification.removeAttribute('class'), 5000);
-                }
-
-                requestAnimationFrame(() => {
-                  onClickCloseOverlay();
-                  localStorage.setItem('user', JSON.stringify(user));
-                });
-              }
-            };
-
-            const onClickAddCard = () => {
-              overlay.setAttribute('class', 'show');
-
-              requestAnimationFrame(() => {
-                content.onclick = onClickOutsideOverlay;
-                saveCardButton.onclick = onClickSaveCard;
-              });
-            };
-
-            addCardButton.onclick = onClickAddCard;
-
-            // Wallet events
-
-            const walletOverlay = document.querySelector('.frond-wallet-overlay');
-
-            walletOverlay.onclick = event => {
-              if (
-                event.target.localName === 'body' ||
-                event.target.className === 'frond-wallet-overlay'
-              ) {
-                walletOverlay.remove();
-              }
-            };
-
-            [].forEach.call(
-              document.querySelectorAll('.card-list > .card:not(.new)'),
-              card => {
-                card.onclick = async () => {
-                  const usdAmount = 10; // TOKEN SALE AMOUNT
-                  const embrAmount = 0.0001; // DENOMINATION MULTIPLIER
-
-                  const buyResult = await fetch('/transaction', {
-                    method: 'POST',
-                    headers: {
-                      'Accept': 'application/json',
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                      username: user.username,
-                      token: user.token,
-                      recipient: 'YOUR_AUTH_USERNAME',
-                      recipientAddress: 'YOUR_TOKEN_ADDRESS',
-                      tokenAddress: 'TARGET_TOKEN_ADDRESS_(YOURS)',
-                      currency: 'usd',
-                      usdAmount,
-                      embrAmount,
-                      cardNumber: card.dataset.id
-                    })
-                  });
-
-                  if (buyResult && buyResult.status === 200) {
-                    const buyResponse = await buyResult.json();
-
-                    notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
-                    notification.setAttribute('class', 'show');
-                    renderPrice(buyResponse);
-                  } else {
-                    notification.innerHTML = `There was a problem processing that card.`;
-                    notification.setAttribute('class', 'show error');
-                  }
-
-                  walletOverlay.remove();
-                  setTimeout(() => notification.removeAttribute('class'), 5000);
-                };
-              }
-            );
-          };
-
-          // Handle render card list
-
-          const renderCardList = async parentElement => {
-            const cardsResult = await fetch('/cards', {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                token: user.token,
-                username: user.username
-              })
-            });
-
-            if (cardsResult && cardsResult.status === 200) {
-              const cardsResponse = await cardsResult.json();
-
-              if (!cardsResponse?.success) {
-                return false;
-              }
-
-              const cardList = document.createElement('ul');
-
-              requestAnimationFrame(() => {
-                cardList.setAttribute('class', 'card-list');
-
-                const { cards } = cardsResponse;
-
-                cardList.innerHTML = cards.map(card => {
-                  if (!card?.processor) return;
-
-                  const {
-                    name,
-                    number,
-                    processor,
-                    currency
-                  } = card;
-
-                  return `
-                    <li class="card ${processor.toLowerCase()}" data-id="${number}">
-                      <p class="number">${number}</p>
-                      <span class="details">
-                        <p>${name}</p>
-                        <!-- <img src="${processor.toLowerCase()}" alt="${processor}" width="72" height="36" /> -->
-                      </span>
-                    </li>
-                  `;
-                })
-                .join('');
-
-                cardList.innerHTML += (`
-                  <li class="card new">
-                    <button id="add-card">
-                      + Add Card
-                    </button>
-                  </li>
-                `);
-
-                if (parentElement) {
-                  parentElement.innerHTML = `
-                    <h3>Payment Method</h3>
-                    ${cardList.outerHTML}
-                  `;
-                }
-
-                setTimeout(bindCardListEvents, 100);
-
-              });
-
-              return true;
-            }
-          };
 
           // Handle render price
 
@@ -792,16 +575,9 @@
           // Handle app onActive
 
           switch (appName) {
-            case 'shop':
-              notification.innerHTML = 'Available soon.';
-              notification.setAttribute('class', 'show');
-              setTimeout(() => notification.removeAttribute('class'), 5000);
-
-              break;
-            case 'market':
+            case 'trade':
               // Select elements
 
-              const market = document.getElementById('market');
               const prices = document.getElementById('prices');
               const buyCoinButton = document.getElementById('buy-coin-button');
 
@@ -832,69 +608,31 @@
                 });
               }
 
-              // Handle buy coin
+              // Fetch cards
 
-              const onClickBuyCoin = async () => {
-                requestAnimationFrame(() => {
-                  const cardList = document.querySelector('.card-list');
-                  const frondWalletOverlay = document.createElement('div');
-                  const frondWalletOverlayStyles = document.createElement('style');
+              const cardsResult = await fetch('/cards', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  token: user.token,
+                  username: user.username
+                })
+              });
 
-                  frondWalletOverlay.setAttribute('class', 'frond-wallet-overlay');
-                  frondWalletOverlayStyles.setAttribute('scoped', true);
+              if (cardsResult && cardsResult.status === 200) {
+                const cardsResponse = await cardsResult.json();
 
-                  frondWalletOverlayStyles.innerHTML = `
-                    .frond-wallet-overlay {
-                      position: fixed;
-                      background: rgba(0, 0, 0, .8);
-                      left: 220px;
-                      right: 0;
-                      top: 0;
-                      bottom: 0;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      flex-direction: column;
-                      z-index: 1000;
-                    }
-                    .frond-wallet {
-                      display: flex;
-                      flex-direction: column;
-                      background: #111;
-                      box-shadow: 0 0 1rem black;
-                      border-radius: 0.5rem;
-                      border: 1px solid black;
-                      padding: 1rem;
-                      margin: 2rem;
-                      overflow: auto;
-                    }
-                    @media (max-width: 900px) {
-                      .frond-wallet-overlay {
-                        left: 0;
-                      }
-                    }
-                  `;
+                if (!cardsResponse?.success) {
+                  return false;
+                }
 
-                  frondWalletOverlay.innerHTML = `
-                    <div class="frond-wallet">
-                      <h3>Payment Method</h3>
-                    </div>
-                  `;
+                const { cards } = cardsResponse;
 
-                  frame.insertBefore(frondWalletOverlayStyles, frame.firstElementChild);
-                  frame.insertBefore(frondWalletOverlay, frondWalletOverlayStyles.nextElementSibling);
-
-                  if (!renderCardList(frondWalletOverlay.firstElementChild)) {
-                    notification.innerHTML = 'Error fetching cards.';
-                    notification.setAttribute('class', 'show error');
-                    setTimeout(() => notification.removeAttribute('class'), 5000);
-
-                    return;
-                  }
-                });
-              };
-
-              buyCoinButton.onclick = () => onClickBuyCoin();
+                buyCoinButton.onclick = frond.onShow.bind(frond, { cards });
+              }
 
               break;
 
@@ -974,6 +712,89 @@
           user = response?.user;
 
           if (!user?.username) return;
+
+          // Frond wallet (Fern SDK)
+
+          const cardNumber = document.getElementById('card-number');
+          const cardName = document.getElementById('card-name');
+          const cardExpiration = document.getElementById('card-expiration');
+          const cardCVV = document.getElementById('card-cvv');
+
+          frond = Frond({
+            rootElement: content,
+            notificationElement: notification,
+            onClickCard: async cardElement => {
+              cardElement.onclick = async () => {
+                const usdAmount = 10;
+                const embrAmount = 0.0001;
+
+                const buyResult = await fetch('/transaction', {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    username: user.username,
+                    token: user.token,
+                    recipient: 'exactchange',
+                    recipientAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
+                    tokenAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
+                    currency: 'usd',
+                    usdAmount,
+                    embrAmount,
+                    cardNumber: cardElement.dataset.id
+                  })
+                });
+
+                if (buyResult && buyResult.status === 200) {
+                  const buyResponse = await buyResult.json();
+
+                  notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
+                  notification.setAttribute('class', 'show');
+                  renderPrice(buyResponse);
+                } else {
+                  notification.innerHTML = `There was a problem processing that card.`;
+                  notification.setAttribute('class', 'show error');
+                }
+
+                document.querySelector('.frond-wallet-overlay').remove();
+                setTimeout(() => notification.removeAttribute('class'), 5000);
+              }
+            },
+            onSaveCard: async () => {
+              const card = {
+                number: cardNumber.value,
+                name: cardName.value,
+                expiration: cardExpiration.value,
+                cvv: cardCVV.value
+              };
+
+              const cardResult = await fetch('/card', {
+                method: 'PUT',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  username: user.username,
+                  token: user.token,
+                  card
+                })
+              });
+
+              cardNumber.value = '';
+              cardName.value = '';
+              cardExpiration.value = '';
+              cardCVV.value = '';
+
+              if (!cardResult || cardResult.status !== 200) {
+                return false;
+              }
+
+              return card;
+            }
+          });
 
           if (auth?.parentElement) {
             if (isNotification) {
