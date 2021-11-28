@@ -24,23 +24,6 @@
             <button id="save-card">Save</button>
           </form>
         </aside>
-        <form id="signup" action="" class="hide">
-          <input id="email" type="email" autocomplete="true" placeholder="Email" required />
-          <button id="register">Signup</button>
-        </form>
-        <form id="auth" action="">
-          <h1 id="branding">
-            Native Ember Token
-          </h1>
-          <input id="username" autocomplete="true" placeholder="Email" tabindex="1" />
-          <input id="password" type="password" autocomplete="current-password" placeholder="Password" tabindex="2" />
-          <button id="login" tabindex="3">Login</button>
-          <div>
-            <button id="create">
-              Create an account
-            </button>
-          </div>
-        </form>
         <div id="frame" class="hide">
           <div id="shop">
             Available soon.
@@ -169,6 +152,11 @@
         const notification = document.getElementById('notification');
         const email = document.getElementById('email');
         const signup = document.getElementById('signup');
+
+        // Responsive
+
+        const { Responsive } = DuskSDK;
+        const duskResponsive = Responsive({ frame });
 
         // Retain app frames
 
@@ -334,8 +322,8 @@
 
             content.setAttribute('class', 'authed full-vh');
             frame.removeAttribute('class');
-            onResize();
-            setApp();
+            duskResponsive.onResize();
+            duskTabs.onRender();
 
             localStorage.setItem('user', JSON.stringify(user));
             sessionStorage.setItem('isNotification', 'false');
