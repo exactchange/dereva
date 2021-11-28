@@ -1,7 +1,7 @@
-const IdentitySDK = {
+const IdentitySDK = window.IdentitySDK = {
   package: {
     name: 'identity-sdk',
-    version: '0.0.3'
+    version: '0.0.7'
   },
   Authentication: ({
     rootElement,
@@ -104,7 +104,9 @@ const IdentitySDK = {
       usernamePlaceholder = 'Email',
       passwordPlaceholder = 'Password',
     }) => {
-      rootElement.innerHTML = `
+      const element = document.createElement('div');
+
+      element.innerHTML = `
         <form id="signup" action="" class="hide">
           <input id="email" type="email" autocomplete="true" placeholder=${usernamePlaceholder} required />
           <button id="register">${signupText}</button>
@@ -122,8 +124,11 @@ const IdentitySDK = {
             </button>
           </div>
         </form>
-        ${rootElement.innerHTML}
       `;
+
+      Array.from(element.children).reverse().forEach(child => (
+        rootElement.insertBefore(child,rootElement.firstElementChild)
+      ));
 
       requestAnimationFrame(() => {
         auth = document.getElementById('auth');

@@ -1,7 +1,7 @@
-const FernSDK = {
+const FernSDK = window.FernSDK = {
   package: {
     name: 'fern-sdk',
-    version: '0.0.2'
+    version: '0.0.3'
   },
   Frond: ({
     rootElement,
