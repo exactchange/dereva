@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.1.3'
+    version: '0.1.5'
   },
   Browser: () => {
     // Render stylesheet
@@ -355,6 +355,9 @@ const DuskSDK = window.DuskSDK = {
           min-width: 24px;
           min-height: 24px;
           border-radius: .5rem;
+          background-size: contain;
+          background-position: center center;
+          background-repeat: no-repeat;
         }
 
         #tabs > li:first-of-type > .icon {
@@ -499,12 +502,12 @@ const DuskSDK = window.DuskSDK = {
       <ul id="tabs">
         ${!orgTab ? '' : `
           <li>
-            <span class="icon" style="background: url(${orgTab.iconPath}) center center / cover no-repeat;"></span>
+            <span class="icon" style="background-image: url(${orgTab.iconPath});"></span>
             <a href="/">${orgTab.name}</a>
           </li>
         `}
         <li>
-        <span class="icon" style="background: url(${iconPath}) center center / cover no-repeat;"></span>
+        <span class="icon" style="background-image: url(${iconPath});"></span>
           <a href="${rootPath}">
             ${name}
             ${!devStatus ? '' : `
