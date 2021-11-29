@@ -112,6 +112,11 @@
     <script defer>
       (async () => {
 
+        // Browser styles (DuskSDK)
+
+        const { Browser } = DuskSDK;
+        const duskBrowser = Browser();
+
         // Dependencies
 
         const dollar = new Intl.NumberFormat('en-US', {
