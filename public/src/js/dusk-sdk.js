@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.0.9'
+    version: '0.1.0'
   },
   Browser: () => {
     // Render stylesheet
@@ -508,7 +508,7 @@ const DuskSDK = window.DuskSDK = {
       `)
     );
 
-    document.head.appendChild(css);
+    document.head.insertBefore(css, document.head.children[1]);
   },
   Tabs: ({
     rootElement,
