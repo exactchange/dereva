@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.1.0'
+    version: '0.1.2'
   },
   Browser: () => {
     // Render stylesheet
@@ -226,7 +226,6 @@ const DuskSDK = window.DuskSDK = {
         #content > h1 {
           flex: 1;
           display: block;
-          background: url("./exactchange.png") center center / contain no-repeat;
           color: transparent;
           min-height: 100%;
           min-width: 100%;
@@ -263,7 +262,7 @@ const DuskSDK = window.DuskSDK = {
         #apps > li {
           display: flex;
           justify-content: center;
-          background: url("./bennyschmidt/src/icon.jpg") center center / cover no-repeat;
+          background: black;
           border-radius: 1rem;
           border: 1px solid black;
           box-shadow: 0 2px 0 black, inset 0 25px rgb(255 255 255 / 15%), 0 0 2rem black;
@@ -353,7 +352,6 @@ const DuskSDK = window.DuskSDK = {
 
         #tabs > li > .icon {
           display: block;
-          background: url("./icon.png") center center / cover  no-repeat;
           min-width: 24px;
           min-height: 24px;
           border-radius: .5rem;
@@ -365,34 +363,6 @@ const DuskSDK = window.DuskSDK = {
 
         #tabs > li:first-of-type:hover > .icon {
           filter: saturate(1);
-        }
-
-        #tabs > li.fern > .icon {
-          background-image: url("./fern/src/icon.png");
-        }
-
-        #tabs > li.shoe-swap > .icon {
-          background-image: url("./shoe-swap/icon.png");
-        }
-
-        #tabs > li.samsara > .icon {
-          background-image: url("./samsara/src/icon.png");
-        }
-
-        #tabs > li.payphone > .icon {
-          background-image: url("./payphone/src/icon.png");
-        }
-
-        #tabs > li.skimday > .icon {
-          background-image: url("./skimday/src/icon.png");
-        }
-
-        #tabs > li.embercoin > .icon {
-          background-image: url("./embercoin/src/icon.png");
-        }
-
-        #tabs > li.ember > .icon {
-          background-image: url("./media/ember-token.png");
         }
 
         #tabs > li > a {
@@ -508,7 +478,7 @@ const DuskSDK = window.DuskSDK = {
       `)
     );
 
-    document.head.insertBefore(css, document.head.children[1]);
+    document.head.appendChild(css);
   },
   Tabs: ({
     rootElement,
@@ -516,9 +486,10 @@ const DuskSDK = window.DuskSDK = {
     onRender,
     onLoad,
     orgTab,
-    appTab,
     appTab: {
-      devStatus
+      name,
+      devStatus,
+      iconPath
     }
   }) => {
     const element = document.createElement('div');
@@ -528,14 +499,14 @@ const DuskSDK = window.DuskSDK = {
       <ul id="tabs">
         ${!orgTab ? '' : `
           <li>
-            <span class="icon"></span>
+            <span class="icon" style="background: url(${orgTab.iconPath}) center center / cover no-repeat;"></span>
             <a href="/">${orgTab.name}</a>
           </li>
         `}
         <li>
-          <span class="icon"></span>
+        <span class="icon" style="background: url(${iconPath}) center center / cover no-repeat;"></span>
           <a href="${rootPath}">
-            ${appTab.name}
+            ${name}
             ${!devStatus ? '' : `
               <span class="app-label ${devStatus}">${devStatus}</span>
             `}
