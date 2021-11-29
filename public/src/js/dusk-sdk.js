@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.1.5'
+    version: '0.1.6'
   },
   Browser: () => {
     // Render stylesheet
@@ -61,7 +61,7 @@ const DuskSDK = window.DuskSDK = {
           box-sizing: border-box;
         }
 
-        html {
+        html, body {
           background: #19181b;
         }
 
