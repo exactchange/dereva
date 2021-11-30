@@ -12,6 +12,7 @@
   </head>
   <body>
     <section id="main">
+      <ul id="tabs"></ul>
       <div id="content" class="full-vh">
         <aside id="notification"></aside>
         <aside id="overlay">
@@ -184,6 +185,9 @@
 
         const { PEER_LIST } = window.env;
         const peers = {};
+
+        notification.innerHTML = `Finding peers...`;
+        notification.setAttribute('style', 'top: 10px; opacity: 1;');
 
         await Promise.all(
           Object.keys(PEER_LIST).map(async address => {
