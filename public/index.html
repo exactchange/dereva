@@ -186,40 +186,6 @@
         const { PEER_LIST } = window.env;
         const peers = {};
 
-        notification.innerHTML = `Finding peers...`;
-        notification.setAttribute('style', 'top: 10px; opacity: 1;');
-
-        await Promise.all(
-          Object.keys(PEER_LIST).map(async address => {
-            let infoResponse, priceResponse;
-
-            const peerUrl = PEER_LIST[address];
-
-            const infoResult = await fetch(`${peerUrl}/info`);
-
-            if (infoResult && infoResult.status === 200) {
-              infoResponse = await infoResult.json();
-
-              const priceResult = await fetch(`${PEER_LIST[address]}/price`);
-
-              if (priceResult && priceResult.status === 200) {
-                priceResponse = await priceResult.json();
-
-                if (infoResponse && priceResponse) {
-                  peers[address] = {
-                    tokenAddress: address,
-                    tokenName: infoResponse.name,
-                    tokenLogo: infoResponse.logo,
-                    tokenDenomination: infoResponse.denomination,
-                    tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
-                    tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination)
-                  }
-                }
-              }
-            }
-          })
-        );
-
         // Frond wallet (FernSDK)
 
         const { Frond } = FernSDK;
@@ -235,6 +201,42 @@
             user = response?.user;
 
             if (!user || !user.username) return;
+
+            notification.innerHTML = `Finding peers...`;
+            notification.setAttribute('style', 'top: 10px; opacity: 1;');
+
+            await Promise.all(
+              Object.keys(PEER_LIST).map(async address => {
+                let infoResponse, priceResponse;
+
+                const peerUrl = PEER_LIST[address];
+
+                const infoResult = await fetch(`${peerUrl}/info`);
+
+                if (infoResult && infoResult.status === 200) {
+                  infoResponse = await infoResult.json();
+
+                  const priceResult = await fetch(`${PEER_LIST[address]}/price`);
+
+                  if (priceResult && priceResult.status === 200) {
+                    priceResponse = await priceResult.json();
+
+                    if (infoResponse && priceResponse) {
+                      peers[address] = {
+                        tokenAddress: address,
+                        tokenName: infoResponse.name,
+                        tokenLogo: infoResponse.logo,
+                        tokenDenomination: infoResponse.denomination,
+                        tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
+                        tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination)
+                      }
+                    }
+                  }
+                }
+              })
+            );
+
+            notification.removeAttribute('style');
 
             const auth = document.getElementById('auth');
             const frame = document.getElementById('frame');
