@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.1.6'
+    version: '0.1.8'
   },
   Browser: () => {
     // Render stylesheet
@@ -336,6 +336,15 @@ const DuskSDK = window.DuskSDK = {
           height: 4rem;
         }
 
+        #tabs > li.category {
+          color: #666;
+          font-size: .5em;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          height: 2rem;
+        }
+
         #tabs > li.active {
           border-left: solid 2px #00d8ff;
         }
@@ -495,6 +504,8 @@ const DuskSDK = window.DuskSDK = {
       iconPath
     }
   }) => {
+    document.getElementById('tabs').remove();
+
     const element = document.createElement('div');
 
     element.innerHTML = `
