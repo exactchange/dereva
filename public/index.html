@@ -197,7 +197,7 @@
 
         const authentication = Authentication({
           rootElement: content,
-          onAuth: response => {
+          onAuth: async response => {
             user = response?.user;
 
             if (!user || !user.username) return;
