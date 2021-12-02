@@ -508,7 +508,7 @@ h1:not(#branding) > .logo,
   background: rgba(0, 0, 0, 0.75);
   align-items: center;
   justify-content: center;
-  z-index: 1100;
+  z-index: 850;
 }
 
 #overlay.show {
