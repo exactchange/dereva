@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.1.8'
+    version: '0.1.9'
   },
   Browser: () => {
     // Render stylesheet
@@ -460,9 +460,7 @@ const DuskSDK = window.DuskSDK = {
             transform: translate3d(0, 0, 0);
           }
 
-          #tabs > li:first-of-type {
-            display: none;
-          }
+          #tabs >
 
           #tab-button {
             display: block;
