@@ -5,6 +5,8 @@
  *
  */
 
+const peers = require('../peers');
+
 module.exports = ({ embercoin, userEvents }) => (
   async ({
     sender,
@@ -30,7 +32,8 @@ module.exports = ({ embercoin, userEvents }) => (
         tokenAddress,
         usdAmount: 0,
         embrAmount,
-        currency: 'embr'
+        currency: 'embr',
+        peers: Object.values(peers)
       }
     });
 
@@ -48,7 +51,8 @@ module.exports = ({ embercoin, userEvents }) => (
         tokenAddress: sender.userData.address,
         usdAmount: 0,
         embrAmount,
-        currency: 'embr'
+        currency: 'embr',
+        peers: Object.values(peers)
       }
     });
 

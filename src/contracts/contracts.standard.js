@@ -5,6 +5,8 @@
  *
  */
 
+const peers = require('../peers');
+
 module.exports = ({ embercoin, userEvents }) => {
   const StandardAgreement = async ({
     token,
@@ -29,7 +31,8 @@ module.exports = ({ embercoin, userEvents }) => {
         tokenAddress,
         usdAmount,
         embrAmount,
-        currency
+        currency,
+        peers: Object.values(peers)
       }
     });
 
