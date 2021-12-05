@@ -639,6 +639,6 @@ h1:not(#branding) > .logo,
   }
 
   #transactions > ul {
-    margin: 12.5px;
+    margin: 12.5px 0;
   }
 }
