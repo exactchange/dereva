@@ -45,6 +45,7 @@
   const userApi = require('./api/api.user')();
   const userEvents = require('./events/events.user')();
 
+  const peers = require('./peers');
   const { generateId } = require('./algorithms');
 
   const { StandardAgreement, ExchangeAgreement } = require('./contracts')({
@@ -108,7 +109,8 @@
         address: TOKEN_ADDRESS,
         name: TOKEN_NAME,
         logo: TOKEN_LOGO_URL,
-        denomination: TOKEN_DENOMINATION
+        denomination: TOKEN_DENOMINATION,
+        peers
       })
     },
     POST: {

@@ -1,6 +1,6 @@
 {
   "name": "native-ember-token",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "scripts": {
     "start": "node index",
     "test": "node src/tests"
