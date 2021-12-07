@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.2.0'
+    version: '0.2.1'
   },
   Browser: () => {
     // Render stylesheet
@@ -320,6 +320,7 @@ const DuskSDK = window.DuskSDK = {
           padding: 0;
           font: 800 normal 1em "Raleway", sans-serif;
           transition: transform .5s ease;
+          overflow-y: auto;
           z-index: 900;
         }
 
@@ -329,11 +330,10 @@ const DuskSDK = window.DuskSDK = {
 
         #tabs > li {
           margin: 1px 0;
-          padding: 0 0 0 1rem;
+          padding: 1rem;
           display: flex;
           align-items: center;
           justify-content: start;
-          height: 4rem;
         }
 
         #tabs > li.category {
@@ -361,8 +361,8 @@ const DuskSDK = window.DuskSDK = {
 
         #tabs > li > .icon {
           display: block;
-          min-width: 24px;
-          min-height: 24px;
+          min-width: 1.6rem;
+          min-height: 1.6rem;
           border-radius: .5rem;
           background-size: contain;
           background-position: center center;
@@ -387,7 +387,6 @@ const DuskSDK = window.DuskSDK = {
           overflow: hidden;
           width: 100%;
           height: 100%;
-          line-height: 4rem;
           margin-left: 8px;
           font-weight: 600;
         }
@@ -514,7 +513,7 @@ const DuskSDK = window.DuskSDK = {
           </li>
         `}
         <li>
-        <span class="icon" style="background-image: url(${iconPath});"></span>
+          ${!iconPath ? '' : `<span class="icon" style="background-image: url(${iconPath});"></span>`}
           <a href="${rootPath}">
             ${name}
             ${!devStatus ? '' : `
