@@ -60,4 +60,4 @@ Contracts are agreements between participants in a transaction that are specifie
 - `PORT`: The port you're serving it over.
 - `TOKEN_ADDRESS`, `TOKEN_NAME`, `TOKEN_LOGO_URL`, & `TOKEN_DENOMINATION`: Presumably, the reason you're forking this repo is to create your own Native Ember Token. This is the token info your peer instance will broadcast to the network.
 
-3. When your service is ready, deploy it to the web and begin selling your new token. Replenish your own token supply by purchasing & liquidating [Ember](https://exactchange.herokuapp.com/ember/?app=shop).
+3. When your service is ready, deploy it to the web and begin selling your new token. Replenish your own token supply by purchasing & liquidating [Ember](https://exactchange.network/ember/?app=shop).
