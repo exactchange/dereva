@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.2.1'
+    version: '0.2.3'
   },
   Browser: () => {
     // Render stylesheet
@@ -223,6 +223,10 @@ const DuskSDK = window.DuskSDK = {
           align-self: center;
         }
 
+        #tabs.disobstruct + #content {
+          max-width: 100%;
+        }
+
         #content > h1 {
           flex: 1;
           display: block;
@@ -400,6 +404,12 @@ const DuskSDK = window.DuskSDK = {
           font-weight: 600;
         }
 
+        #tabs > li > a > span.new-tab {
+          display: inline-block;
+          transform: rotateX(180deg);
+          margin-left: .25em;
+        }
+
         #tabs > li > a > span.app-label {
           flex: 1;
           display: block;
@@ -433,6 +443,7 @@ const DuskSDK = window.DuskSDK = {
           width: 3rem;
           height: 3rem;
           margin: 0.5rem;
+          padding: 0;
           background: black;
           color: white;
           appearance: none;
@@ -448,6 +459,23 @@ const DuskSDK = window.DuskSDK = {
           box-shadow: none;
           left: 155px;
           opacity: .5;
+        }
+
+        #tabs.disobstruct {
+          transform: translate3d(-220px, 0, 0);
+        }
+
+        #tabs.disobstruct + * {
+          margin-left: auto;
+          width: 100%;
+        }
+
+        #tabs.disobstruct.open {
+          transform: translate3d(0, 0, 0);
+        }
+
+        #tab-button.disobstruct {
+          display: block;
         }
 
         @media (max-width: 900px) {
@@ -490,6 +518,7 @@ const DuskSDK = window.DuskSDK = {
   Tabs: ({
     rootElement,
     rootPath,
+    className = '',
     onRender,
     onLoad,
     orgTab,
@@ -504,8 +533,8 @@ const DuskSDK = window.DuskSDK = {
     const element = document.createElement('div');
 
     element.innerHTML = `
-      <button id="tab-button">☰</button>
-      <ul id="tabs">
+      <button id="tab-button" class="${className}">☰</button>
+      <ul id="tabs" class="${className}">
         ${!orgTab ? '' : `
           <li>
             <span class="icon" style="background-image: url(${orgTab.iconPath});"></span>
@@ -525,15 +554,15 @@ const DuskSDK = window.DuskSDK = {
     `;
 
     Array.from(element.children).reverse().forEach(child => (
-      rootElement.insertBefore(child,rootElement.firstElementChild)
+      rootElement.insertBefore(child, rootElement.firstElementChild)
     ));
 
     const onOpen = () => {
       const tabs = document.getElementById('tabs');
       const tabButton = document.getElementById('tab-button');
 
-      tabButton.setAttribute('class', 'open');
-      tabs.setAttribute('class', 'open');
+      tabButton.setAttribute('class', `${className} open`);
+      tabs.setAttribute('class', `${className} open`);
       tabButton.onclick = onClose;
       tabButton.innerHTML = '';
 
@@ -546,8 +575,8 @@ const DuskSDK = window.DuskSDK = {
       const tabs = document.getElementById('tabs');
       const tabButton = document.getElementById('tab-button');
 
-      tabButton.removeAttribute('class');
-      tabs.removeAttribute('class');
+      tabButton.setAttribute('class', className);
+      tabs.setAttribute('class', className);
       tabButton.onclick = onOpen;
       tabButton.innerHTML = '';
 
