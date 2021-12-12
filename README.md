@@ -24,9 +24,9 @@ Any node that processes peer EMBR transactions may be paid a small percentage of
 
 Peer lists are a kind of limited trust network where peers, whose addresses are shared in a list (usually a file), mutually agree to a level of trust within their group by: Agreeing to always validate each other's transactions, or to process them tax-free, sharing a centralized database of transactions, and other means of exclusivity. Limited trust networks might also include any centralized deployment of Embercoin, or cases where many nodes are deploying forks or branches that have deviated from the source so much that they are no longer compatible with its rules.
 
-## Trading EMBR
+## Trading
 
-Special kinds of tokens may emerge for day trading purposes where the token is not accepted at any store or for any product or service, and it only exists to be purchased by traders. Because any token can be liquidated at any time, there is no need for a trader to strategize around the hype of which token is trending today, except for minute vendor price differences (that fall within the Deviation Rate). In terms of its base value though, a day trader is effectively trading EMBR, regardless of the token held. The purpose of buying a token outside of trading it is specific to its market utility in its economy.
+Special kinds of tokens may emerge for day trading purposes where the token is not accepted at any store or for any product or service, and it only exists to be purchased by traders. Because any token can be liquidated at any time, there is no need for a trader to strategize around the hype of which token is trending today, except for minute vendor price differences (that fall within the Deviation Rate). In terms of its base value though, a day trader is effectively trading Embercoin, regardless of the token held. The purpose of buying a token outside of trading it is specific to its market utility in its economy.
 
 ## Anonymous Tokens
 
