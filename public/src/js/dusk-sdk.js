@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.2.5'
+    version: '0.2.6'
   },
   Browser: () => {
     // Render stylesheet
@@ -323,7 +323,7 @@ const DuskSDK = window.DuskSDK = {
           overflow-y: auto;
           z-index: 900;
           scrollbar-width: thin;
-          scrollbar-color: black #8c8c8d;
+          scrollbar-color: #8c8c8d black;
         }
 
         #tabs::-webkit-scrollbar {
