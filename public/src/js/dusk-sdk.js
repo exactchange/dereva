@@ -1,7 +1,7 @@
 const DuskSDK = window.DuskSDK = {
   package: {
     name: 'dusk-sdk',
-    version: '0.2.3'
+    version: '0.2.4'
   },
   Browser: () => {
     // Render stylesheet
@@ -53,8 +53,18 @@ const DuskSDK = window.DuskSDK = {
           }
         }
 
-        ::selection {
-          background: transparent;
+        #tabs::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        #tabs::-webkit-scrollbar-track {
+          background: black;
+        }
+
+        #tabs::-webkit-scrollbar-thumb {
+          background: #8c8c8d;
+          border-radius: 100vw;
+          outline: none;
         }
 
         * {
@@ -326,6 +336,10 @@ const DuskSDK = window.DuskSDK = {
           transition: transform .5s ease;
           overflow-y: auto;
           z-index: 900;
+        }
+
+        #tabs ::selection {
+          background: transparent;
         }
 
         #tabs + * {
