@@ -8,41 +8,7 @@ Native Ember Tokens are bound to, and can only be spent in whichever economy the
 
 Anyone can create their own token by forking the Native Ember Token repository and serving it to the web with their new token name and configuration. The codebase installs a local copy of [Embercoin](https://www.npmjs.com/package/embercoin), so that every instance of Native Ember Token runs its own instance of the Embercoin blockchain.
 
-Whenever a merchant sells a token, the transaction is broadcasted to other token merchants in the peer network, who run their own Embercoin transaction validation logic to determine if the transaction should be entered into their blockchain instance. Because everyone installs the same Embercoin blockchain, the validation logic should be identical if a token merchant does not tamper with the code. If they do tamper with it, they may yield different validation results than other nodes.
-
-Any user can thus determine the validity of a transaction by checking at any time how many instances of Embercoin validated it against how many instances are running: For example if 100 instances of Embercoin are live in a network, and 99 of those instances do not validate an incoming transaction based on what was submitted by the merchant, but 1 instance does validate it, the transaction enters only that 1 blockchain instance and is rejected by the other 99. When any user wants to verify that a transaction is valid in that network, they only need to check with a number of peers of those nodes at random to build confidence in the validity. As more peers corroborate the transaction, confidence is built, and upon a certain threshold determined by the user a transaction can be deemed valid.
-
-When performing a basic balance inquiry or when transferring EMBR to another user, like any other request to Embercoin the values are determined functionally - that is, they are calculated at the time it's needed to be across a number of peer instances until the provided confidence threshold is met.
-
-Buyers and sellers may reserve a right to only agree to transactions of a certain level of confidence or within certain networks, and are encouraged to deal in only high-confidence or specified transactions. In scenarios where a lot of capital is at stake, extended closing periods may become the norm where a target confidence level must be retained for a period of time, or throughout a certain number of networks, before the token sale is finalized, at the discretion of the parties involved.
-
-## Consensus Tax
-
-Any node that processes peer EMBR transactions may be paid a small percentage of the transaction amount called a consensus tax. The payment is received in the token being transferred. Transactions requiring a high level of confidence might have a higher consensus tax, as more peers are required to validate it. However, the consensus tax amount is set by either the buyer or the seller, it can be 0, and peers reserve the right to process transaction requests or not based on the tax offering. If a buyer or seller wanted to achieve very high confidence in a transaction quickly, they could offer to pay a higher tax to incentivize peers to process it; on the other hand, peers interested in processing as many transactions as possible might set a low tax rate in order to "win" transactions (to earn passive revenues); others may offer to process transactions entirely for free, or operate within limited trust networks.
-
-## Peer Lists & Limited Trust Networks
-
-Peer lists are a kind of limited trust network where peers, whose addresses are shared in a list (usually a file), mutually agree to a level of trust within their group by: Agreeing to always validate each other's transactions, or to process them tax-free, sharing a centralized database of transactions, and other means of exclusivity. Limited trust networks might also include any centralized deployment of Embercoin, or cases where many nodes are deploying forks or branches that have deviated from the source so much that they are no longer compatible with its rules.
-
-## Trading EMBR
-
-Special kinds of tokens may emerge for day trading purposes where the token is not accepted at any store or for any product or service, and it only exists to be purchased by traders. Because any token can be liquidated at any time, there is no need for a trader to strategize around the hype of which token is trending today, except for minute vendor price differences (that fall within the Deviation Rate). In terms of its base value though, a day trader is effectively trading EMBR, regardless of the token held. The purpose of buying a token outside of trading it is specific to its market utility in its economy.
-
-## Anonymous Tokens
-
-An anonymous token is any EMBR amount accounted for by a blockchain participant where the participant does not host their own instance of Embercoin, and is not broadcasting anything from an `/info` NET endpoint about their token name, logo, or denomination.
-
-## Contracts
-
-Contracts are agreements between participants in a transaction that are specified in the request by their string name (e.g. `{ contract: "standard" }`). Currently there are 2 kinds of contracts:
-
-**Standard**: The standard transaction agreement for selling and/or transferring tokens between users where EMBR is transferred for an optional USD payment, and rewards are mined, if applicable.
-
-**Exchange**: The transaction agreement for liquidating a foreign token in order to supply a native token.
-
-* * *
-
-### Usage
+## Usage
 
 1. Fork this repository and make any desired changes or necessary extensions. For example, change the way the front-end looks and behaves, or connect it to another backend service, etc.
 
@@ -69,3 +35,14 @@ Contracts are agreements between participants in a transaction that are specifie
 - `TOKEN_ADDRESS`, `TOKEN_NAME`, `TOKEN_LOGO_URL`, & `TOKEN_DENOMINATION`: Presumably, the reason you're forking this repo is to create your own Native Ember Token. This is the token info your peer instance will broadcast to the network.
 
 3. When your service is ready, deploy it to the web and begin selling your new token. Replenish your own token supply by purchasing & liquidating [Ember](https://exactchange.network/ember/?app=shop).
+
+## Topics
+
+- [Decentralizing EMBR](https://github.com/exactchange/embercoin/blob/master/README.md#decentralization)
+- [Contracts](https://github.com/exactchange/embercoin/blob/master/README.md#contracts)
+- [Validations](https://github.com/exactchange/embercoin/blob/master/README.md#validations)
+- [Enforcements](https://github.com/exactchange/embercoin/blob/master/README.md#enforcements)
+- [Consensus Tax](https://github.com/exactchange/embercoin/blob/master/README.md#consensus-tax)
+- [Limited Trust Networks](https://github.com/exactchange/embercoin/blob/master/README.md#peer-lists--limited-trust-networks)
+- [Trading](https://github.com/exactchange/embercoin/blob/master/README.md#trading)
+- [Anonymous Tokens](https://github.com/exactchange/embercoin/blob/master/README.md#anonymous-tokens)
