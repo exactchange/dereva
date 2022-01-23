@@ -38,12 +38,11 @@ Anyone can create their own token by forking the Native Ember Token repository a
 
 ## Topics
 
-- [Decentralizing EMBR](https://github.com/exactchange/embercoin/blob/master/README.md#decentralization)
+- [Decentralization](https://github.com/exactchange/embercoin/blob/master/README.md#decentralization)
 - [Contracts](https://github.com/exactchange/embercoin/blob/master/README.md#contracts)
 - [Validations](https://github.com/exactchange/embercoin/blob/master/README.md#validations)
 - [Enforcements](https://github.com/exactchange/embercoin/blob/master/README.md#enforcements)
 - [Redundancy](https://github.com/exactchange/embercoin/blob/master/README.md#redundancy)
 - [Protocol](https://github.com/exactchange/embercoin/blob/master/README.md#protocol)
-- [Limited Trust Networks](https://github.com/exactchange/embercoin/blob/master/README.md#peer-lists--limited-trust-networks)
 - [Trading](https://github.com/exactchange/embercoin/blob/master/README.md#trading)
 - [Anonymous Tokens](https://github.com/exactchange/embercoin/blob/master/README.md#anonymous-tokens)
