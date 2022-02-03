@@ -27,7 +27,7 @@
             end: () => ({
               error: {
                 code,
-                message: '<Native Ember Token> Service error (GET).'
+                message: '<Dereva> Service error (GET).'
               }
             })
           }),
@@ -51,7 +51,7 @@
         },
         {
           status: code => ({
-            end: () => `<Native Ember Token> Service error (${code}/POST).`
+            end: () => `<Dereva> Service error (${code}/POST).`
           }),
           send: body => ({
             status: 200,

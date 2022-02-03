@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 /*
- * Native Ember Token
+ * Dereva
  */
 
 [
@@ -45,9 +45,9 @@ Server.use(
 const server = require('http').createServer(Server);
 
 server.listen(PORT, async () => {
-  console.log(`Native Ember Token is online at ${HOST}.`);
+  console.log(`Dereva is online at ${HOST}.`);
 
-  // Native Ember Token service
+  // Dereva service
 
   const net = require('./src');
 

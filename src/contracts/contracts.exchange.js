@@ -7,32 +7,32 @@
 
 const peers = require('../peers');
 
-module.exports = ({ embercoin, userEvents }) => (
+module.exports = ({ drv, userEvents }) => (
   async ({
     sender,
     recipientAddress,
     tokenAddress,
-    embrAmount,
+    drvAmount,
     currency
   }) => {
     const currencySymbol = currency.toLowerCase();
-    const isEmbr = currencySymbol === 'embr';
+    const isEmbr = currencySymbol === 'drv';
 
     if (!isEmbr || sender.userData.address !== recipientAddress) {
       return false;
     }
 
     const transactionResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
+      service: drv,
+      serviceName: 'drv',
       method: 'transaction',
       body: {
         senderAddress: sender.userData.address,
         recipientAddress: 'treasury-0000-0000-0000-000000000000',
         tokenAddress,
         usdAmount: 0,
-        embrAmount,
-        currency: 'embr',
+        drvAmount,
+        currency: 'drv',
         peers: Object.values(peers)
       }
     });
@@ -42,16 +42,16 @@ module.exports = ({ embercoin, userEvents }) => (
     }
 
     const exchangeResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
+      service: drv,
+      serviceName: 'drv',
       method: 'transaction',
       body: {
         senderAddress: 'treasury-0000-0000-0000-000000000000',
         recipientAddress: sender.userData.address,
         tokenAddress: sender.userData.address,
         usdAmount: 0,
-        embrAmount,
-        currency: 'embr',
+        drvAmount,
+        currency: 'drv',
         peers: Object.values(peers)
       }
     });

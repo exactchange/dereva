@@ -7,7 +7,7 @@
 
 const peers = require('../peers');
 
-module.exports = ({ embercoin, userEvents }) => {
+module.exports = ({ drv, userEvents }) => {
   const StandardAgreement = async ({
     token,
     sender,
@@ -15,22 +15,22 @@ module.exports = ({ embercoin, userEvents }) => {
     recipientAddress,
     tokenAddress,
     usdAmount,
-    embrAmount,
+    drvAmount,
     currency
   }) => {
     const currencySymbol = currency.toLowerCase();
-    const isEmbr = currencySymbol === 'embr';
+    const isEmbr = currencySymbol === 'drv';
 
     const transactionResult = await userEvents.onServicePost({
-      service: embercoin,
-      serviceName: 'embercoin',
+      service: drv,
+      serviceName: 'drv',
       method: 'transaction',
       body: {
         senderAddress: sender.userData.address,
         recipientAddress,
         tokenAddress,
         usdAmount,
-        embrAmount,
+        drvAmount,
         currency,
         peers: Object.values(peers)
       }
@@ -47,14 +47,14 @@ module.exports = ({ embercoin, userEvents }) => {
         recipient: sender,
         recipientAddress: sender.userData.address,
         tokenAddress,
-        usdAmount: transactionResult.price * embrAmount,
-        embrAmount,
-        currency: 'embr'
+        usdAmount: transactionResult.price * drvAmount,
+        drvAmount,
+        currency: 'drv'
       });
 
       if (!transferResult) {
         console.log(
-          '<Native Ember Token> Transfer Error: There was a problem transferring EMBR between accounts.', sender, recipient
+          '<Dereva> Transfer Error: There was a problem transferring DRV between accounts.', sender, recipient
         );
       }
     }

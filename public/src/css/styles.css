@@ -76,7 +76,7 @@ h1:not(#branding) > .logo,
   overflow: hidden;
 }
 
-.card.embr {
+.card.drv {
   background: linear-gradient(to bottom, #111, #000);
 }
 

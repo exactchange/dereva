@@ -12,7 +12,7 @@
   */
 
   const { http } = require('node-service-client');
-  const embercoin = require('embercoin');
+  const drv = require('drv-core');
 
   const identity = require('identity-client');
   const fern = require('fern-client');
@@ -49,7 +49,7 @@
   const { generateId } = require('./algorithms');
 
   const { StandardAgreement, ExchangeAgreement } = require('./contracts')({
-    embercoin,
+    drv,
     userEvents
   });
 
@@ -59,8 +59,8 @@
 
   const getTokenEmbrBalance = async ({ address, tokenAddress }) => {
     const transactionsResult = await userEvents.onServiceGet({
-      service: embercoin,
-      serviceName: 'embercoin',
+      service: drv,
+      serviceName: 'drv',
       method: 'transactions'
     });
 
@@ -75,7 +75,7 @@
         block.senderAddress === address &&
         block.tokenAddress === tokenAddress
       ))
-      .map(({ embrAmount }) => embrAmount)
+      .map(({ drvAmount }) => drvAmount)
       .reduce((a, b) => a + b);
 
     const tokenCredit = transactions
@@ -83,7 +83,7 @@
         block.recipientAddress === address &&
         block.tokenAddress === tokenAddress
       ))
-      .map(({ embrAmount }) => embrAmount)
+      .map(({ drvAmount }) => drvAmount)
       .reduce((a, b) => a + b);
 
     return tokenCredit - tokenDebit;
@@ -96,13 +96,13 @@
   module.exports = http({
     GET: {
       price: async () => await userEvents.onServiceGet({
-        service: embercoin,
-        serviceName: 'embercoin',
+        service: drv,
+        serviceName: 'drv',
         method: 'price'
       }),
       transactions: async () => await userEvents.onServiceGet({
-        service: embercoin,
-        serviceName: 'embercoin',
+        service: drv,
+        serviceName: 'drv',
         method: 'transactions'
       }),
       info: () => ({
@@ -135,7 +135,7 @@
           result = await identity.create({
             username,
             password,
-            appSlug: 'native-ember-token'
+            appSlug: 'dereva'
           });
 
           if (!result?.token) {
@@ -149,7 +149,7 @@
             token
           });
 
-          userData = (result.appData && result.appData['native-ember-token']) || {}
+          userData = (result.appData && result.appData['dereva']) || {}
         }
 
         const user = await userApi.createUser({
@@ -164,8 +164,8 @@
         }
 
         const priceResult = await userEvents.onServiceGet({
-          service: embercoin,
-          serviceName: 'embercoin',
+          service: drv,
+          serviceName: 'drv',
           method: 'price'
         });
 
@@ -194,7 +194,7 @@
           userData: {
             address: generateId()
           },
-          appSlug: 'native-ember-token'
+          appSlug: 'dereva'
         });
 
         if (!signup?.success) {
@@ -214,7 +214,7 @@
         tokenAddress,
         currency,
         usdAmount,
-        embrAmount,
+        drvAmount,
         cardNumber,
         contract
       }) => {
@@ -228,7 +228,7 @@
         if (senderResult?.username) {
           senderResponse = {
             username: senderResult.username,
-            userData: senderResult.appData['native-ember-token']
+            userData: senderResult.appData['dereva']
           };
         }
 
@@ -237,7 +237,7 @@
         if (recipientResult?.username) {
           recipientResponse = {
             username: recipientResult.username,
-            userData: recipientResult.appData['native-ember-token']
+            userData: recipientResult.appData['dereva']
           };
         }
 
@@ -246,7 +246,7 @@
         }
 
         const currencySymbol = currency.toLowerCase();
-        const isEmbr = currencySymbol === 'embr';
+        const isEmbr = currencySymbol === 'drv';
 
         if (isEmbr) {
           const senderTokenEmbrBalance = await getTokenEmbrBalance({
@@ -254,19 +254,19 @@
             tokenAddress
           });
 
-          if (senderTokenEmbrBalance < embrAmount) {
+          if (senderTokenEmbrBalance < drvAmount) {
             return INSUFFICIENT_FUNDS;
           }
 
-          senderAmount = embrAmount * -1;
-          recipientAmount = embrAmount;
+          senderAmount = drvAmount * -1;
+          recipientAmount = drvAmount;
         } else {
           const recipientTokenEmbrBalance = await getTokenEmbrBalance({
             address: recipientAddress,
             tokenAddress
           });
 
-          if (recipientTokenEmbrBalance < embrAmount) {
+          if (recipientTokenEmbrBalance < drvAmount) {
             return UNAVAILABLE_TOKEN;
           }
 
@@ -288,7 +288,7 @@
             sender: senderResponse,
             recipientAddress,
             tokenAddress,
-            embrAmount,
+            drvAmount,
             currency
           })
           : await StandardAgreement({
@@ -298,7 +298,7 @@
             recipientAddress,
             tokenAddress,
             usdAmount,
-            embrAmount,
+            drvAmount,
             currency
           });
 
@@ -309,7 +309,7 @@
         user = await userApi.getUser({ token });
 
         console.log(
-          `<Native Ember Token> ${senderResponse.username} sent ${recipientResponse.username} ${isEmbr ? embrAmount.toFixed(2) : usdAmount.toFixed(2)} ${currency.toUpperCase()}.`
+          `<Dereva> ${senderResponse.username} sent ${recipientResponse.username} ${isEmbr ? drvAmount.toFixed(2) : usdAmount.toFixed(2)} ${currency.toUpperCase()}.`
         );
 
         return {

@@ -18,8 +18,8 @@
   Exports
   */
 
-  module.exports = ({ embercoin, userEvents }) => ({
-    StandardAgreement: createStandardAttorney({ embercoin, userEvents }),
-    ExchangeAgreement: createExchangeAttorney({ embercoin, userEvents })
+  module.exports = ({ drv, userEvents }) => ({
+    StandardAgreement: createStandardAttorney({ drv, userEvents }),
+    ExchangeAgreement: createExchangeAttorney({ drv, userEvents })
   });
 })();

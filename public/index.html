@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Native Ember Token</title>
+    <title>Dereva</title>
     <link rel="icon" href="./src/favicon.ico">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./src/icon.png">
@@ -37,7 +37,7 @@
               <div data-id="liquid" class="flex end active">
                 <div>
                   <p>0.00</p>
-                  <h4>EMBR</h4>
+                  <h4>DRV</h4>
                 </div>
                 <div>/</div>
                 <div>
@@ -48,7 +48,7 @@
               <div data-id="net-worth">
                 <div>
                   <p>0.00</p>
-                  <h4>EMBR</h4>
+                  <h4>DRV</h4>
                 </div>
                 <div>/</div>
                 <div>
@@ -59,7 +59,7 @@
             </div>
             <div id="trading">
               <p>
-                Embercoin (EMBR)
+                Dereva (DRV)
               </p>
               <ul id="price">
                 <li>
@@ -71,8 +71,8 @@
                   <h4>Invest</h4>
                 </li>
                 <li>
-                  <img src="https://exactchange.herokuapp.com/media/embercoin.png" alt="EMBR" width="32" height="32" />
-                  <h3>EMBR</h3>
+                  <img src="https://exactchange.herokuapp.com/media/dereva.png" alt="DRV" width="32" height="32" />
+                  <h3>DRV</h3>
                   <p id="price-market-cap">$-</p>
                   <p id="price-average">$-</p>
                   <p class="negative" id="price-24h">-%</p>
@@ -82,7 +82,7 @@
                 </li>
               </ul>
               <p>
-                Native Ember Token (NET)
+                Dereva (NET)
               </p>
               <ul id="prices">
                 <li>
@@ -253,7 +253,7 @@
                 senderAddress,
                 recipientAddress,
                 tokenAddress,
-                embrAmount,
+                drvAmount,
                 currency
               }) => {
                 if (currency === 'usd') return;
@@ -262,7 +262,7 @@
                   ? denomination
                   : peers[tokenAddress].tokenDenomination;
 
-                const tokenAmount = embrAmount * parseFloat(tokenDenomination);
+                const tokenAmount = drvAmount * parseFloat(tokenDenomination);
 
                 if (marketCaps[tokenAddress] === undefined) {
                   marketCaps[tokenAddress] = 0;
@@ -420,7 +420,7 @@
               onClickCard: async cardElement => {
                 cardElement.onclick = async () => {
                   const usdAmount = 10;
-                  const embrAmount = 0.0001;
+                  const drvAmount = 0.0001;
 
                   const buyResult = await fetch('/transaction', {
                     method: 'POST',
@@ -436,7 +436,7 @@
                       tokenAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
                       currency: 'usd',
                       usdAmount,
-                      embrAmount,
+                      drvAmount,
                       cardNumber: cardElement.dataset.id
                     })
                   });
@@ -444,7 +444,7 @@
                   if (buyResult && buyResult.status === 200) {
                     const buyResponse = await buyResult.json();
 
-                    notification.innerHTML = `You purchased ${embrAmount} EMBR.`;
+                    notification.innerHTML = `You purchased ${drvAmount} DRV.`;
                     notification.setAttribute('class', 'show');
                     renderPrice(buyResponse);
                   } else {
@@ -528,7 +528,7 @@
               return;
             } else {
               authentication.onShow({
-                title: 'Native Ember Token'
+                title: 'Dereva'
               });
             }
           },
@@ -546,7 +546,7 @@
           rootElement: main,
           rootPath: '/?app=shop',
           appTab: {
-            name: 'Native Ember Token',
+            name: 'Dereva',
             devStatus: 'beta',
             iconPath: './src/icon.png'
           },
@@ -556,7 +556,7 @@
 
             // Render page title
 
-            document.title = `${appName.replace(appName[0], appName[0].toUpperCase())} | Native Ember Token`;
+            document.title = `${appName.replace(appName[0], appName[0].toUpperCase())} | Dereva`;
 
             // Render tabs
 
@@ -660,7 +660,7 @@
                   ${ledger.map(({
                     hash,
                     next,
-                    embrAmount,
+                    drvAmount,
                     currency,
                     currentPrice,
                     recipientAddress,
@@ -696,7 +696,7 @@
                     </ul>
                     <span class="hr"></span>
                     <ul>
-                      <li>EMBR Amount: ${embrAmount}</li>
+                      <li>DRV Amount: ${drvAmount}</li>
                       <li>USD Amount: ${usdAmount}</li>
                       <li>Current Price: ${currentPrice}</li>
                     </ul>
