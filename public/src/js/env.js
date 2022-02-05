@@ -1,1 +1,3 @@
-window.env = {};
+window.env = {
+  TREASURY_ADDRESS: "treasury-0000-0000-0000-000000000000"
+};

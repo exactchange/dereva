@@ -1,10 +1,4 @@
-#tabs > li:first-of-type > .icon,
-#tabs > li:first-of-type:hover > .icon {
-  background-image: url("../icon.png");
-  filter: none;
-}
-
-#tabs > li {
+#tabs > li:not(:first-of-type) > a {
   text-transform: capitalize;
 }
 
@@ -20,6 +14,10 @@
 #notification {
   background: #ffa500;
   text-shadow: 0 1px 0 #ec2c00;
+}
+
+#content {
+  padding: 0;
 }
 
 body {
@@ -139,7 +137,8 @@ h1:not(#branding) > .logo,
 
 #auth.hide,
 #signup.hide,
-#frame.hide {
+#frame.hide,
+.card-list.hide {
   display: none;
 }
 
@@ -148,8 +147,61 @@ h1:not(#branding) > .logo,
   width: 100%;
 }
 
+#shop {
+  padding-bottom: 4rem;
+}
+
+#shop h1 {
+  margin: 2rem 1rem;
+}
+
+#shop > p {
+  margin: 4rem 0;
+}
+
+#shop h3 > span {
+  font-style: italic;
+  font-weight: 400;
+  font-size: .8em;
+}
+
+#shop .intro,
+#shop .product {
+  background: #040204;
+  border-radius: .5rem;
+  max-width: 18rem;
+  height: 20rem;
+  margin: 1rem;
+}
+
+#shop .product > img {
+  margin: 1rem 1rem 0;
+  object-fit: contain;
+}
+
+#shop .intro {
+  max-width: 60%;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+#shop .intro p {
+  line-height: 1.8em;
+  margin: 1rem 0 0;
+}
+
+#topbar {
+  margin: 0;
+  padding: 1rem;
+  background: black;
+}
+
+#topbar > h5 {
+  margin: 0;
+}
+
 #market {
-  padding-bottom: 0.1rem;
+  padding: 1rem 1rem .1rem;
 }
 
 #price,
@@ -158,7 +210,7 @@ h1:not(#branding) > .logo,
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  width: calc(100% - 2rem);
+  width: 100%;
   margin-bottom: 3rem;
   padding: 1rem;
   border-radius: 1rem;
@@ -193,9 +245,7 @@ h1:not(#branding) > .logo,
 }
 
 #price > li > h4:last-of-type,
-#price > li > p:last-of-type,
-#prices > li > h4:last-of-type,
-#prices > li > p:last-of-type {
+#prices > li > h4:last-of-type {
   max-width: 5rem;
   text-align: center;
   white-space: nowrap;
@@ -205,6 +255,7 @@ h1:not(#branding) > .logo,
   text-align: left;
 }
 
+#price > li > p:last-of-type,
 #prices > li > p:last-of-type {
   margin-left: 1rem;
 }
@@ -228,9 +279,10 @@ h1:not(#branding) > .logo,
   border-radius: 100vw;
 }
 
-#price > li > h3,
-#prices > li > h3 {
+#price > li > .symbol,
+#prices > li > .symbol {
   text-transform: uppercase;
+  max-width: 6rem;
 }
 
 #prices > li > p {
@@ -275,6 +327,11 @@ h1:not(#branding) > .logo,
 #buy-coin-button {
   border: none;
   background: #ffa500;
+  margin: 1rem;
+  padding: 1rem;
+  text-transform: uppercase;
+  width: calc(100% - 2rem);
+  max-height: 3rem;
 }
 
 #buy-coin-button[disabled],
@@ -562,6 +619,7 @@ h1:not(#branding) > .logo,
 #transactions {
   max-height: 100vh;
   width: 100%;
+  padding: 1rem;
 }
 
 #transactions > ul {
@@ -615,6 +673,17 @@ h1:not(#branding) > .logo,
     margin: 1rem;
   }
 
+  #shop .intro,
+  #shop .product {
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+    font-size: 1.25em;
+  }
+
+  #shop > .flex {
+    flex-direction: column;
+  }
+
   #price,
   #prices,
   #trading > p {
@@ -633,7 +702,7 @@ h1:not(#branding) > .logo,
     overflow: hidden;
   }
 
-  #prices > li > h3,
+  #prices > li > .symbol,
   #prices > li > .symbol {
     display: none;
   }

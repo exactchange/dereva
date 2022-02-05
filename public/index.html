@@ -5,7 +5,7 @@
     <link rel="icon" href="./src/favicon.ico">
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./src/icon.png">
-    <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="stylesheet" href="./src/css/styles.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Alegreya&family=Forum&family=Economica&family=Poiret+One&family=Averia+Serif+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Cinzel+Decorative:wght@400;700;900&family=Oi&family=UnifrakturCook:wght@700">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -26,7 +26,24 @@
         </aside>
         <div id="frame" class="hide">
           <div id="shop">
-            Available soon.
+            <header id="topbar" class="flex between"></header>
+            <div class="flex">
+              <div class="intro">
+                <p>
+                  Dereva is a digital token obtained by using apps and services within the exactchange ecosystem.
+                  Dereva is redeemable in this shop, for products and services currently available, and can also be purchased with USD.
+                </p>
+              </div>
+              <div class="product flex column center">
+                <img src="./src/icon.png" alt="DRV" width="120px" height="120px" />
+                <h3>100 Dereva <span>(0.0001 DRV)</span></h3>
+                <button id="buy-coin-button">Buy Dereva ($10 USD)</button>
+              </div>
+            </div>
+            <h1 class="logo">
+              Shop
+            </h1>
+            <p class="center">No products to display.</p>
           </div>
           <div id="market" class="flex column">
             <ul class="segmented-control flex" data-name="account-balance">
@@ -59,7 +76,7 @@
             </div>
             <div id="trading">
               <p>
-                Dereva (DRV)
+                Dereva
               </p>
               <ul id="price">
                 <li>
@@ -68,21 +85,17 @@
                   <h4>Market Cap</h4>
                   <h4>Price</h4>
                   <h4>24h %</h4>
-                  <h4>Invest</h4>
                 </li>
                 <li>
                   <img src="https://exactchange.herokuapp.com/media/dereva.png" alt="DRV" width="32" height="32" />
-                  <h3>DRV</h3>
-                  <p id="price-market-cap">$-</p>
-                  <p id="price-average">$-</p>
-                  <p class="negative" id="price-24h">-%</p>
-                  <p>
-                    <button id="buy-coin-button">Buy</button>
-                  </p>
+                  <h4 class="symbol">DRV</h4>
+                  <h4 id="price-market-cap">$-</h4>
+                  <h4 id="price-average">$-</h4>
+                  <h4 class="negative" id="price-24h">-%</h4>
                 </li>
               </ul>
               <p>
-                Dereva (NET)
+                Peer Tokens
               </p>
               <ul id="prices">
                 <li>
@@ -94,8 +107,8 @@
                 <li>
                   <img id="token-img" src="" alt="Anonymous Token" width="32" height="32" />
                   <h4 id="token-name"></h4>
-                  <p id="token-price-average">$-</p>
-                  <p class="negative" id="token-price-24h">-%</p>
+                  <h4 id="token-price-average">$-</h4>
+                  <h4 class="negative" id="token-price-24h">-%</h4>
                 </li>
               </ul>
             </div>
@@ -112,6 +125,7 @@
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
+        const { TREASURY_ADDRESS } = env;
 
         // Browser styles (DuskSDK)
 
@@ -133,6 +147,7 @@
           .filter(Boolean);
 
         const appNames = [
+          'shop',
           'market',
           'transactions'
         ];
@@ -208,7 +223,9 @@
             parseFloat(priceData.marketCap) + parseFloat(priceData.marketCap * .1)
           );
 
-          priceAverage.innerHTML = `${dollar.format(currentPrice)}`;
+          const displayPrice = currentPrice < 0.01 ? 0.01 : currentPrice;
+
+          priceAverage.innerHTML = `${dollar.format(displayPrice)}`;
           price24h.innerHTML = `${percentChange.toFixed(2)}%`;
           priceMarketCap.innerHTML = `${dollar.format(cap).replace('.00', '')}`;
           price24h.setAttribute('class', percentChange > 0 ? 'positive' : 'negative');
@@ -252,46 +269,52 @@
               .forEach(({
                 senderAddress,
                 recipientAddress,
-                tokenAddress,
-                drvAmount,
-                currency
+                drvValue
               }) => {
-                if (currency === 'usd') return;
+                if (typeof(drvValue) !== 'number') return;
 
-                const tokenDenomination = tokenAddress === address
+                const isTreasury = senderAddress === TREASURY_ADDRESS;
+
+                const tokenDenomination = senderAddress === address
                   ? denomination
-                  : peers[tokenAddress].tokenDenomination;
+                  : isTreasury
+                    ? 1
+                    : peers[senderAddress].tokenDenomination;
 
-                const tokenAmount = drvAmount * parseFloat(tokenDenomination);
+                const tokenValue = drvValue * parseFloat(tokenDenomination);
 
-                if (marketCaps[tokenAddress] === undefined) {
-                  marketCaps[tokenAddress] = 0;
+                if (tokens[senderAddress] === undefined) {
+                  tokens[senderAddress] = 0;
                 }
 
-                if (tokens[tokenAddress] === undefined) {
-                  tokens[tokenAddress] = 0;
+                if (tokens[recipientAddress] === undefined) {
+                  tokens[recipientAddress] = 0;
                 }
 
-                if (senderAddress.match('treasury')) {
-                  marketCaps[tokenAddress] += tokenAmount;
+                if (marketCaps[senderAddress] === undefined) {
+                  marketCaps[senderAddress] = 0;
                 }
 
-                if (recipientAddress.match('treasury')) {
-                  marketCaps[tokenAddress] -= tokenAmount;
+                if (marketCaps[recipientAddress] === undefined) {
+                  marketCaps[recipientAddress] = 0;
                 }
 
-                if (senderAddress === user.userData.address) {
-                  tokens[tokenAddress] -= tokenAmount;
-                }
+                tokens[senderAddress] -= tokenValue;
+                tokens[recipientAddress] += tokenValue;
 
-                if (recipientAddress === user.userData.address) {
-                  tokens[tokenAddress] += tokenAmount;
+                if (isTreasury) {
+                  marketCaps[recipientAddress] += tokenValue;
                 }
               });
+
+              delete tokens[TREASURY_ADDRESS];
+              delete marketCaps[TREASURY_ADDRESS];
 
               const ownership = (
                 tokens[address] / marketCaps[address] * 100
               );
+
+              const displayPrice = currentPrice < 0.01 ? 0 : currentPrice;
 
               prices.innerHTML = `
                 <li>
@@ -303,10 +326,10 @@
                 <li>
                   <img class="token-img" src=${logo} alt=${name} width="32" height="32" />
                   <h4 id="token-name">${name}</h4>
-                  <p id="token-price-average">${dollar.format(currentPrice)}</p>
+                  <p id="token-price-average">${dollar.format(displayPrice)}</p>
                   <p class=${percentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${percentChange.toFixed(2)}%</p>
                 </li>
-                <li class="progress flex start" title="${`${tokens[address].toFixed(2)} | ${dollar.format(tokens[address] * currentPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
+                <li class="progress flex start" title="${`${tokens[address] ? tokens[address].toFixed(2) : '-'} | ${dollar.format(tokens[address] * displayPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
                   <span style="max-width: ${ownership}%;"></span>
                 </li>
                 ${
@@ -359,7 +382,7 @@
 
             if (!user || !user.username) return;
 
-            notification.innerHTML = `Finding peers...`;
+            notification.innerHTML = 'Finding peers...';
             notification.setAttribute('style', 'top: 10px; opacity: 1;');
 
             let peersResponse;
@@ -369,37 +392,43 @@
             if (peersResult && peersResult.status === 200) {
               peersResponse = await peersResult.json();
 
-              await Promise.all(
-                Object.keys(peersResult.peers).map(async address => {
-                  let infoResponse, priceResponse;
+              try {
+                await Promise.all(
+                  Object.keys(peersResponse.peers).map(async address => {
+                    let infoResponse, priceResponse;
 
-                  const peerUrl = peersResult.peers[address];
+                    const peerUrl = peersResponse.peers[address];
 
-                  const infoResult = await fetch(`${peerUrl}/info`);
+                    console.log(peerUrl)
 
-                  if (infoResult && infoResult.status === 200) {
-                    infoResponse = await infoResult.json();
+                    const infoResult = await fetch(`${peerUrl}/info`);
 
-                    const priceResult = await fetch(`${peersResult.peers[address]}/price`);
+                    if (infoResult && infoResult.status === 200) {
+                      infoResponse = await infoResult.json();
 
-                    if (priceResult && priceResult.status === 200) {
-                      priceResponse = await priceResult.json();
+                      const priceResult = await fetch(`${infoResponse.peers[address]}/price`);
 
-                      if (infoResponse && priceResponse) {
-                        peers[address] = {
-                          tokenAddress: address,
-                          tokenName: infoResponse.name,
-                          tokenLogo: infoResponse.logo,
-                          tokenDenomination: infoResponse.denomination,
-                          tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
-                          tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination),
-                          tokenPeers: infoResponse.peers
+                      if (priceResult && priceResult.status === 200) {
+                        priceResponse = await priceResult.json();
+
+                        if (infoResponse && priceResponse) {
+                          peers[address] = {
+                            tokenAddress: address,
+                            tokenName: infoResponse.name,
+                            tokenLogo: infoResponse.logo,
+                            tokenDenomination: infoResponse.denomination,
+                            tokenPrice: parseFloat(priceResponse.body.price / infoResponse.denomination),
+                            tokenPrice24Ago: parseFloat(priceResponse.body.price24hAgo / infoResponse.denomination),
+                            tokenPeers: infoResponse.peers
+                          }
                         }
                       }
                     }
-                  }
-                })
-              );
+                  })
+                );
+              } catch (error) {
+                console.warn(error);
+              }
             }
 
             notification.removeAttribute('style');
@@ -419,8 +448,8 @@
               notificationElement: notification,
               onClickCard: async cardElement => {
                 cardElement.onclick = async () => {
-                  const usdAmount = 10;
-                  const drvAmount = 0.0001;
+                  const usdValue = 10;
+                  const drvValue = 0.0001;
 
                   const buyResult = await fetch('/transaction', {
                     method: 'POST',
@@ -433,10 +462,8 @@
                       token: user.token,
                       recipient: 'exactchange',
                       recipientAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
-                      tokenAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
-                      currency: 'usd',
-                      usdAmount,
-                      drvAmount,
+                      usdValue,
+                      drvValue,
                       cardNumber: cardElement.dataset.id
                     })
                   });
@@ -444,7 +471,7 @@
                   if (buyResult && buyResult.status === 200) {
                     const buyResponse = await buyResult.json();
 
-                    notification.innerHTML = `You purchased ${drvAmount} DRV.`;
+                    notification.innerHTML = `You purchased ${drvValue} DRV.`;
                     notification.setAttribute('class', 'show');
                     renderPrice(buyResponse);
                   } else {
@@ -570,13 +597,79 @@
 
             frame.innerHTML = apps[appName];
 
+            const bindWalletEvents = async () => {
+              const buyCoinButton = document.getElementById('buy-coin-button');
+
+              // Fetch cards
+
+              const cardsResult = await fetch('/cards', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  token: user.token,
+                  username: user.username
+                })
+              });
+
+              if (cardsResult && cardsResult.status === 200) {
+                const cardsResponse = await cardsResult.json();
+
+                if (!cardsResponse?.success) {
+                  buyCoinButton.onclick = () => {
+                    notification.innerHTML = 'No wallet found.';
+                    notification.setAttribute('style', 'top: 10px; opacity: 1;');
+                    setTimeout(() => notification.removeAttribute('style'), 5000);
+                  };
+
+                  return false;
+                }
+
+                const { cards } = cardsResponse;
+
+                buyCoinButton.onclick = frond.onShow.bind(frond, { cards });
+              }
+            };
+
             // Handle app onActive
 
             switch (appName) {
               case 'shop':
-                notification.innerHTML = 'Available soon.';
-                notification.setAttribute('class', 'show');
-                setTimeout(() => notification.removeAttribute('class'), 5000);
+                const topbar = document.getElementById('topbar');
+
+                await bindWalletEvents();
+
+                if (!peers[user.userData.address]) {
+                  topbar.innerHTML = `
+                    <h5>${user.username}</h5>
+                    <h5 style="text-align: right;">
+                      <img src="./src/icon.png" alt="DRV" width="20px" height="20px" style="vertical-align: middle;" />
+                      0
+                    </h5>
+                  `;
+
+                  break;
+                }
+
+                const {
+                  tokenAddress,
+                  tokenDenomination
+                } = peers[user.userData.address];
+
+                const { tokens, marketCaps } = await getTokenBalance({
+                  address: tokenAddress,
+                  denomination: tokenDenomination
+                });
+
+                topbar.innerHTML = `
+                  <h5>${user.username}</h5>
+                  <h5 style="text-align: right;">
+                    <img src="./src/icon.png" alt="DRV" width="20px" height="20px" style="vertical-align: middle;" />
+                    ${Number(tokens[tokenAddress].toFixed(2) || 0).toLocaleString()}
+                  </h5>
+                `;
 
                 break;
               case 'market':
@@ -584,7 +677,6 @@
 
                 const market = document.getElementById('market');
                 const prices = document.getElementById('prices');
-                const buyCoinButton = document.getElementById('buy-coin-button');
 
                 // Render coin price
 
@@ -613,32 +705,6 @@
                   });
                 }
 
-                // Fetch cards
-
-                const cardsResult = await fetch('/cards', {
-                  method: 'POST',
-                  headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    token: user.token,
-                    username: user.username
-                  })
-                });
-
-                if (cardsResult && cardsResult.status === 200) {
-                  const cardsResponse = await cardsResult.json();
-
-                  if (!cardsResponse?.success) {
-                    return false;
-                  }
-
-                  const { cards } = cardsResponse;
-
-                  buyCoinButton.onclick = frond.onShow.bind(frond, { cards });
-                }
-
                 break;
 
               case 'transactions':
@@ -658,16 +724,15 @@
 
                 transactions.innerHTML = `
                   ${ledger.map(({
+                    timestamp,
                     hash,
                     next,
-                    drvAmount,
-                    currency,
-                    currentPrice,
                     recipientAddress,
                     senderAddress,
-                  timestamp,
-                  usdAmount
-                }) => `
+                    usdValue,
+                    drvValue,
+                    price
+                  }) => `
                   <li class="transaction block">
                     <span class="flex start">
                       <span>
@@ -687,7 +752,6 @@
                             ) : '-'}
                         </p>
                       </span>
-                      <p class="right">Currency: <span>${currency}</span></p>
                     </span>
                     <span class="hr"></span>
                     <ul>
@@ -696,9 +760,9 @@
                     </ul>
                     <span class="hr"></span>
                     <ul>
-                      <li>DRV Amount: ${drvAmount}</li>
-                      <li>USD Amount: ${usdAmount}</li>
-                      <li>Current Price: ${currentPrice}</li>
+                      <li>DRV Value: ${drvValue}</li>
+                      <li>USD Value: ${usdValue}</li>
+                      <li>Current Price: ${price}</li>
                     </ul>
                   </li>
                 `).join('')}

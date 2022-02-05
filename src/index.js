@@ -28,7 +28,7 @@
   } = require('./errors');
 
   const {
-    API_URL,
+    HOST,
     TOKEN_ADDRESS,
     TOKEN_NAME,
     TOKEN_LOGO_URL,
@@ -39,8 +39,7 @@
   Backend
   */
 
-  identity.setURL(API_URL);
-  fern.setURL(API_URL);
+  fern.setURL(HOST);
 
   const userApi = require('./api/api.user')();
   const userEvents = require('./events/events.user')();
@@ -48,7 +47,7 @@
   const peers = require('./peers');
   const { generateId } = require('./algorithms');
 
-  const { StandardAgreement, ExchangeAgreement } = require('./contracts')({
+  const { Record } = require('./contracts')({
     drv,
     userEvents
   });
@@ -57,10 +56,10 @@
   Private
   */
 
-  const getTokenEmbrBalance = async ({ address, tokenAddress }) => {
+  const getTokenDrvBalance = async ({ address, tokenAddress }) => {
     const transactionsResult = await userEvents.onServiceGet({
       service: drv,
-      serviceName: 'drv',
+      serviceName: 'dereva',
       method: 'transactions'
     });
 
@@ -72,18 +71,18 @@
 
     const tokenDebit = transactions
       .filter(block => (
-        block.senderAddress === address &&
-        block.tokenAddress === tokenAddress
+        typeof(block.drvValue) === 'number' &&
+        block.senderAddress === address
       ))
-      .map(({ drvAmount }) => drvAmount)
+      .map(({ drvValue }) => drvValue)
       .reduce((a, b) => a + b);
 
     const tokenCredit = transactions
       .filter(block => (
-        block.recipientAddress === address &&
-        block.tokenAddress === tokenAddress
+        typeof(block.drvValue) === 'number' &&
+        block.recipientAddress === address
       ))
-      .map(({ drvAmount }) => drvAmount)
+      .map(({ drvValue }) => drvValue)
       .reduce((a, b) => a + b);
 
     return tokenCredit - tokenDebit;
@@ -97,12 +96,12 @@
     GET: {
       price: async () => await userEvents.onServiceGet({
         service: drv,
-        serviceName: 'drv',
+        serviceName: 'dereva',
         method: 'price'
       }),
       transactions: async () => await userEvents.onServiceGet({
         service: drv,
-        serviceName: 'drv',
+        serviceName: 'dereva',
         method: 'transactions'
       }),
       info: () => ({
@@ -211,12 +210,10 @@
         username,
         recipient,
         recipientAddress,
-        tokenAddress,
-        currency,
-        usdAmount,
-        drvAmount,
+        usdValue,
+        drvValue,
         cardNumber,
-        contract
+        contract = 'record'
       }) => {
         if (!username || !token) return;
 
@@ -245,36 +242,35 @@
           return USER_NOT_FOUND_ERROR;
         }
 
-        const currencySymbol = currency.toLowerCase();
-        const isEmbr = currencySymbol === 'drv';
+        const isDrv = !cardNumber;
+        const isFungible = contract === 'record';
 
-        if (isEmbr) {
-          const senderTokenEmbrBalance = await getTokenEmbrBalance({
-            address: senderResponse.userData.address,
-            tokenAddress
-          });
+        if (isDrv) {
+          if (isFungible) {
+            const senderTokenDrvBalance = await getTokenDrvBalance({
+              address: senderResponse.userData.address
+            });
 
-          if (senderTokenEmbrBalance < drvAmount) {
-            return INSUFFICIENT_FUNDS;
+            if (senderTokenDrvBalance < drvValue) {
+              return INSUFFICIENT_FUNDS;
+            }
           }
-
-          senderAmount = drvAmount * -1;
-          recipientAmount = drvAmount;
         } else {
-          const recipientTokenEmbrBalance = await getTokenEmbrBalance({
-            address: recipientAddress,
-            tokenAddress
-          });
+          if (isFungible) {
+            const recipientTokenDrvBalance = await getTokenDrvBalance({
+              address: recipientAddress
+            });
 
-          if (recipientTokenEmbrBalance < drvAmount) {
-            return UNAVAILABLE_TOKEN;
+            if (recipientTokenDrvBalance < drvValue) {
+              return UNAVAILABLE_TOKEN;
+            }
           }
 
           const paymentResult = await fern.transaction({
             username: senderResponse.username,
             token,
             recipient: recipientResponse.username,
-            usdAmount,
+            usdValue,
             cardNumber
           });
 
@@ -283,24 +279,16 @@
           }
         }
 
-        const transactionResult = contract === 'exchange'
-          ? await ExchangeAgreement({
-            sender: senderResponse,
-            recipientAddress,
-            tokenAddress,
-            drvAmount,
-            currency
-          })
-          : await StandardAgreement({
-            token,
-            sender: senderResponse,
-            recipient: recipientResponse,
-            recipientAddress,
-            tokenAddress,
-            usdAmount,
-            drvAmount,
-            currency
-          });
+        const transactionResult = await Record({
+          token,
+          sender: senderResponse,
+          recipient: recipientResponse,
+          recipientAddress,
+          contract,
+          usdValue,
+          drvValue,
+          isDrv
+        });
 
         if (!transactionResult) {
           return SERVER_ERROR;
@@ -308,9 +296,15 @@
 
         user = await userApi.getUser({ token });
 
-        console.log(
-          `<Dereva> ${senderResponse.username} sent ${recipientResponse.username} ${isEmbr ? drvAmount.toFixed(2) : usdAmount.toFixed(2)} ${currency.toUpperCase()}.`
-        );
+        if (isFungible) {
+          console.log(
+            `<Dereva> ${senderResponse.username} sent ${recipientResponse.username} ${isDrv ? `${drvValue.toFixed(2)} DRV` : `${usdValue.toFixed(2)} USD`}.`
+          );
+        } else {
+          console.log(
+            `<Dereva> ${senderResponse.username} transferred a record to ${recipientResponse.username}.`
+          );
+        }
 
         return {
           success: true,

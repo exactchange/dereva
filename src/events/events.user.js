@@ -51,7 +51,12 @@
         },
         {
           status: code => ({
-            end: () => `<Dereva> Service error (${code}/POST).`
+            end: () => ({
+              error: {
+                code,
+                message: '<Dereva> Service error (POST).'
+              }
+            })
           }),
           send: body => ({
             status: 200,

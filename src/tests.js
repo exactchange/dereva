@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 (() => {
 
   /*
@@ -8,19 +6,17 @@ require('dotenv').config();
 
   const fetch = require('node-fetch');
 
-  const { HOST } = process.env;
+  const { URL } = require('../../constants');
 
   const runTests = async () => {
     let data;
 
     try {
-      data = await fetch(`${HOST}/price`);
+      data = await fetch(`${URL}/dereva/auth`);
 
       const response = await data.json();
 
-      if (response && response.success) {
-        console.log('PASSED!');
-      }
+      console.log(response);
 
       /*
        * TODO Tests

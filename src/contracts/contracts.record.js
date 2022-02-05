@@ -1,25 +1,23 @@
 /*
  *
  * Service:Contracts
- * StandardAgreement
+ * Record
  *
  */
 
 const peers = require('../peers');
 
 module.exports = ({ drv, userEvents }) => {
-  const StandardAgreement = async ({
+  const Record = async ({
     token,
     sender,
     recipient,
     recipientAddress,
-    tokenAddress,
-    usdAmount,
-    drvAmount,
-    currency
+    usdValue,
+    drvValue,
+    isDrv
   }) => {
-    const currencySymbol = currency.toLowerCase();
-    const isEmbr = currencySymbol === 'drv';
+    const isFungible = contract === 'record';
 
     const transactionResult = await userEvents.onServicePost({
       service: drv,
@@ -28,10 +26,9 @@ module.exports = ({ drv, userEvents }) => {
       body: {
         senderAddress: sender.userData.address,
         recipientAddress,
-        tokenAddress,
-        usdAmount,
-        drvAmount,
-        currency,
+        contract,
+        usdValue,
+        drvValue,
         peers: Object.values(peers)
       }
     });
@@ -40,16 +37,14 @@ module.exports = ({ drv, userEvents }) => {
       return false;
     }
 
-    if (!isEmbr) {
-      const transferResult = await StandardAgreement({
+    if (!isDrv) {
+      const transferResult = await Record({
         token,
         sender: recipient,
         recipient: sender,
         recipientAddress: sender.userData.address,
-        tokenAddress,
-        usdAmount: transactionResult.price * drvAmount,
-        drvAmount,
-        currency: 'drv'
+        usdValue: (isFungible ? (transactionResult.price * drvValue) : usdValue),
+        drvValue
       });
 
       if (!transferResult) {
@@ -62,5 +57,5 @@ module.exports = ({ drv, userEvents }) => {
     return transactionResult;
   };
 
-  return StandardAgreement;
+  return Record;
 };
