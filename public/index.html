@@ -204,56 +204,7 @@
         const { Frond } = FernSDK;
         let frond;
 
-        // Handle render price
-
-        const renderPrice = priceData => {
-          const priceAverage = document.getElementById('price-average');
-          const price24h = document.getElementById('price-24h');
-          const priceMarketCap = document.getElementById('price-market-cap');
-
-          const percentChange = (
-            (1 - priceData.price24hAgo / priceData.price) * 100
-          );
-
-          const currentPrice = parseFloat(
-            (parseFloat(priceData.price) + priceData.price * .1).toFixed(2)
-          );
-
-          const cap = parseFloat(
-            parseFloat(priceData.marketCap) + parseFloat(priceData.marketCap * .1)
-          );
-
-          const displayPrice = currentPrice < 0.01 ? 0.01 : currentPrice;
-
-          priceAverage.innerHTML = `${dollar.format(displayPrice)}`;
-          price24h.innerHTML = `${percentChange.toFixed(2)}%`;
-          priceMarketCap.innerHTML = `${dollar.format(cap).replace('.00', '')}`;
-          price24h.setAttribute('class', percentChange > 0 ? 'positive' : 'negative');
-        };
-
-        // Handle render token
-
-        const renderToken = async ({
-          tokenInfo: {
-            address,
-            name,
-            logo,
-            denomination
-          },
-          priceData: {
-            price,
-            price24hAgo
-          }
-        }) => {
-          price = price / denomination;
-          price24hAgo = price24hAgo / denomination;
-
-          const percentChange = (1 - price24hAgo / price) * 100;
-
-          const currentPrice = parseFloat(
-            (parseFloat(price) + price * .1).toFixed(2)
-          );
-
+        const getTokenBalance = async ({ address, denomination }) => {
           let ledger, tokens = {}, marketCaps = {};
 
           const transactionsResult = await fetch('/transactions');
@@ -309,69 +260,130 @@
 
               delete tokens[TREASURY_ADDRESS];
               delete marketCaps[TREASURY_ADDRESS];
-
-              const ownership = (
-                tokens[address] / marketCaps[address] * 100
-              );
-
-              const displayPrice = currentPrice < 0.01 ? 0 : currentPrice;
-
-              prices.innerHTML = `
-                <li>
-                  <h4 class="img">Token</h4>
-                  <h4 class="symbol"></h4>
-                  <h4></h4>
-                  <h4></h4>
-                </li>
-                <li>
-                  <img class="token-img" src=${logo} alt=${name} width="32" height="32" />
-                  <h4 id="token-name">${name}</h4>
-                  <p id="token-price-average">${dollar.format(displayPrice)}</p>
-                  <p class=${percentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${percentChange.toFixed(2)}%</p>
-                </li>
-                <li class="progress flex start" title="${`${tokens[address] ? tokens[address].toFixed(2) : '-'} | ${dollar.format(tokens[address] * displayPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
-                  <span style="max-width: ${ownership}%;"></span>
-                </li>
-                ${
-                  Object.keys(tokens)
-                    .filter(token => token !== address)
-                    .map(token => {
-                      const {
-                        tokenLogo,
-                        tokenName,
-                        tokenAddress,
-                        tokenPrice,
-                        tokenPrice24Ago
-                      } = peers[token];
-
-                      const tokenOwnership = (
-                        tokens[token] / marketCaps[token] * 100
-                      );
-
-                      const tokenPercentChange = (1 - tokenPrice24Ago / tokenPrice) * 100;
-
-                      const currentTokenPrice = parseFloat(
-                        (parseFloat(tokenPrice) + tokenPrice * .1).toFixed(2)
-                      );
-
-                      return `
-                        <li>
-                          <img class="token-img" src=${tokenLogo} alt=${tokenName} width="32" height="32" />
-                          <h4 id="token-name">${tokenName}</h4>
-                          <p id="token-price-average">${dollar.format(currentTokenPrice)}</p>
-                          <p class=${tokenPercentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${tokenPercentChange.toFixed(2)}%</p>
-                        </li>
-                        <li class="progress flex start" title="${`${tokens[token].toFixed(2)} | ${dollar.format(tokens[token] * currentTokenPrice)} | ${(tokens[token] / marketCaps[token] * 100).toFixed(2)}% Market Share`}">
-                          <span style="max-width: ${tokenOwnership}%;"></span>
-                        </li>
-                      `;
-                    })
-                }
-              `;
           }
+
+          return {
+            tokens,
+            marketCaps
+          };
         };
 
-        // Authentication (IdentitySDK)
+        // Handle render price
+
+        const renderPrice = priceData => {
+          const priceAverage = document.getElementById('price-average');
+          const price24h = document.getElementById('price-24h');
+          const priceMarketCap = document.getElementById('price-market-cap');
+
+          const percentChange = (
+            (1 - priceData.price24hAgo / priceData.price) * 100
+          );
+
+          const currentPrice = parseFloat(
+            (parseFloat(priceData.price) + priceData.price * .1).toFixed(2)
+          );
+
+          const cap = parseFloat(
+            parseFloat(priceData.marketCap) + parseFloat(priceData.marketCap * .1)
+          );
+
+          const displayPrice = currentPrice < 0.01 ? 0.01 : currentPrice;
+
+          priceAverage.innerHTML = `${dollar.format(displayPrice)}`;
+          price24h.innerHTML = `${percentChange.toFixed(2)}%`;
+          priceMarketCap.innerHTML = `${dollar.format(cap).replace('.00', '')}`;
+          price24h.setAttribute('class', percentChange > 0 ? 'positive' : 'negative');
+        };
+
+        // Handle render token
+
+        const renderToken = async ({
+          tokenInfo: {
+            address,
+            name,
+            logo,
+            denomination
+          },
+          priceData: {
+            price,
+            price24hAgo
+          }
+        }) => {
+          price = price / denomination;
+          price24hAgo = price24hAgo / denomination;
+
+          const percentChange = (1 - price24hAgo / price) * 100;
+
+          const currentPrice = parseFloat(
+            (parseFloat(price) + price * .1).toFixed(2)
+          );
+
+          const { tokens, marketCaps } = await getTokenBalance({
+            address,
+            denomination
+          });
+
+          const ownership = (
+            tokens[address] / marketCaps[address] * 100
+          );
+
+          const displayPrice = currentPrice < 0.01 ? 0 : currentPrice;
+
+          prices.innerHTML = `
+            <li>
+              <h4 class="img">Token</h4>
+              <h4 class="symbol"></h4>
+              <h4></h4>
+              <h4></h4>
+            </li>
+            <li>
+              <img class="token-img" src=${logo} alt=${name} width="32" height="32" />
+              <h4 id="token-name">${name}</h4>
+              <p id="token-price-average">${dollar.format(displayPrice)}</p>
+              <p class=${percentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${percentChange.toFixed(2)}%</p>
+            </li>
+            <li class="progress flex start" title="${`${tokens[address] ? tokens[address].toFixed(2) : '-'} | ${dollar.format(tokens[address] * displayPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
+              <span style="max-width: ${ownership}%;"></span>
+            </li>
+            ${
+              Object.keys(tokens)
+                .filter(token => token !== address)
+                .map(token => {
+                  const {
+                    tokenLogo,
+                    tokenName,
+                    tokenAddress,
+                    tokenPrice,
+                    tokenPrice24Ago
+                  } = peers[token];
+
+                  const tokenOwnership = (
+                    tokens[token] / marketCaps[token] * 100
+                  );
+
+                  const tokenPercentChange = (1 - tokenPrice24Ago / tokenPrice) * 100;
+
+                  const currentTokenPrice = parseFloat(
+                    (parseFloat(tokenPrice) + tokenPrice * .1).toFixed(2)
+                  );
+
+                  return `
+                    <li>
+                      <img class="token-img" src=${tokenLogo} alt=${tokenName} width="32" height="32" />
+                      <h4 id="token-name">${tokenName}</h4>
+                      <p id="token-price-average">${dollar.format(currentTokenPrice)}</p>
+                      <p class=${tokenPercentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${tokenPercentChange.toFixed(2)}%</p>
+                    </li>
+                    <li class="progress flex start" title="${`${tokens[token].toFixed(2)} | ${dollar.format(tokens[token] * currentTokenPrice)} | ${(tokens[token] / marketCaps[token] * 100).toFixed(2)}% Market Share`}">
+                      <span style="max-width: ${tokenOwnership}%;"></span>
+                    </li>
+                  `;
+                })
+            }
+          `;
+        };
+
+// Authentication (IdentitySDK)
 
         const { Authentication } = IdentitySDK;
 
