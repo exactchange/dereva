@@ -226,11 +226,14 @@
 
                 const isTreasury = senderAddress === TREASURY_ADDRESS;
 
-                const tokenDenomination = senderAddress === address
-                  ? denomination
-                  : isTreasury
-                    ? 1
-                    : peers[senderAddress].tokenDenomination;
+                const tokenDenomination = (
+                  senderAddress === address || (
+                    isTreasury &&
+                    recipientAddress === address
+                  )
+                    ? denomination
+                    : peers[senderAddress].tokenDenomination
+                );
 
                 const tokenValue = drvValue * parseFloat(tokenDenomination);
 
