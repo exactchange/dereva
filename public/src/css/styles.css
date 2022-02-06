@@ -1,3 +1,7 @@
+#tabs {
+  background: black;
+}
+
 #tabs > li:not(:first-of-type) > a {
   text-transform: capitalize;
 }
@@ -128,6 +132,11 @@ h1:not(#branding) > .logo,
   margin: 0;
 }
 
+.drv-icon {
+  vertical-align: middle;
+  margin: 0.25rem;
+}
+
 #frame {
   color: white;
   width: 100%;
@@ -167,7 +176,7 @@ h1:not(#branding) > .logo,
 
 #shop .intro,
 #shop .product {
-  background: #040204;
+  background: black;
   border-radius: .5rem;
   max-width: 18rem;
   height: 20rem;
@@ -180,7 +189,7 @@ h1:not(#branding) > .logo,
 }
 
 #shop .intro {
-  max-width: 60%;
+  max-width: 100%;
   padding: 1rem;
   overflow-y: auto;
 }
@@ -245,7 +254,9 @@ h1:not(#branding) > .logo,
 }
 
 #price > li > h4:last-of-type,
-#prices > li > h4:last-of-type {
+#price > li > p:last-of-type,
+#prices > li > h4:last-of-type,
+#prices > li > p:last-of-type {
   max-width: 5rem;
   text-align: center;
   white-space: nowrap;
@@ -279,10 +290,9 @@ h1:not(#branding) > .logo,
   border-radius: 100vw;
 }
 
-#price > li > .symbol,
-#prices > li > .symbol {
+#price > li > h3,
+#prices > li > h3 {
   text-transform: uppercase;
-  max-width: 6rem;
 }
 
 #prices > li > p {
@@ -702,7 +712,7 @@ h1:not(#branding) > .logo,
     overflow: hidden;
   }
 
-  #prices > li > .symbol,
+  #prices > li > h3,
   #prices > li > .symbol {
     display: none;
   }

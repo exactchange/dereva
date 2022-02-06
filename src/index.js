@@ -56,7 +56,7 @@
   Private
   */
 
-  const getTokenDrvBalance = async ({ address, tokenAddress }) => {
+  const getDrvTokenBalance = async ({ address }) => {
     const transactionsResult = await userEvents.onServiceGet({
       service: drv,
       serviceName: 'dereva',
@@ -69,21 +69,27 @@
 
     const transactions = transactionsResult.body;
 
-    const tokenDebit = transactions
+    let tokenDebit = transactions
       .filter(block => (
         typeof(block.drvValue) === 'number' &&
         block.senderAddress === address
       ))
-      .map(({ drvValue }) => drvValue)
-      .reduce((a, b) => a + b);
+      .map(({ drvValue }) => drvValue * TOKEN_DENOMINATION);
 
-    const tokenCredit = transactions
+    if (tokenDebit?.length > 1) {
+      tokenDebit = tokenDebit.reduce((a, b) => a + b);
+    }
+
+    let tokenCredit = transactions
       .filter(block => (
         typeof(block.drvValue) === 'number' &&
         block.recipientAddress === address
       ))
-      .map(({ drvValue }) => drvValue)
-      .reduce((a, b) => a + b);
+      .map(({ drvValue }) => drvValue * TOKEN_DENOMINATION);
+
+    if (tokenCredit?.length > 1) {
+      tokenCredit = tokenCredit.reduce((a, b) => a + b);
+    }
 
     return tokenCredit - tokenDebit;
   };
@@ -247,7 +253,7 @@
 
         if (isDrv) {
           if (isFungible) {
-            const senderTokenDrvBalance = await getTokenDrvBalance({
+            const senderTokenDrvBalance = await getDrvTokenBalance({
               address: senderResponse.userData.address
             });
 
@@ -257,7 +263,7 @@
           }
         } else {
           if (isFungible) {
-            const recipientTokenDrvBalance = await getTokenDrvBalance({
+            const recipientTokenDrvBalance = await getDrvTokenBalance({
               address: recipientAddress
             });
 

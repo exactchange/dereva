@@ -36,7 +36,7 @@
               </div>
               <div class="product flex column center">
                 <img src="./src/icon.png" alt="DRV" width="120px" height="120px" />
-                <h3>100 Dereva <span>(0.0001 DRV)</span></h3>
+                <h3>100 Dereva <span>(0.00001 DRV)</span></h3>
                 <button id="buy-coin-button">Buy Dereva ($10 USD)</button>
               </div>
             </div>
@@ -87,7 +87,7 @@
                   <h4>24h %</h4>
                 </li>
                 <li>
-                  <img src="https://exactchange.herokuapp.com/media/dereva.png" alt="DRV" width="32" height="32" />
+                  <img src="https://exactchange.network/media/dereva.png" alt="DRV" width="32" height="32" />
                   <h4 class="symbol">DRV</h4>
                   <h4 id="price-market-cap">$-</h4>
                   <h4 id="price-average">$-</h4>
@@ -125,7 +125,7 @@
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
-        const { TREASURY_ADDRESS } = env;
+        const { TOKEN_ADDRESS, TREASURY_ADDRESS } = env;
 
         // Browser styles (DuskSDK)
 
@@ -232,7 +232,8 @@
                     recipientAddress === address
                   )
                     ? denomination
-                    : peers[senderAddress].tokenDenomination
+                    // : peers[senderAddress].tokenDenomination
+                    : denomination
                 );
 
                 const tokenValue = drvValue * parseFloat(tokenDenomination);
@@ -326,11 +327,12 @@
             denomination
           });
 
-          const ownership = (
-            tokens[address] / marketCaps[address] * 100
-          );
-
           const displayPrice = currentPrice < 0.01 ? 0 : currentPrice;
+          const userTokenAddress = user.userData.address;
+
+          const ownership = (
+            (tokens[userTokenAddress] || 0) / marketCaps[address] * 100
+          );
 
           prices.innerHTML = `
             <li>
@@ -345,13 +347,15 @@
               <p id="token-price-average">${dollar.format(displayPrice)}</p>
               <p class=${percentChange > 0 ? 'positive' : 'negative'} id="token-price-24h">${percentChange.toFixed(2)}%</p>
             </li>
-            <li class="progress flex start" title="${`${tokens[address] ? tokens[address].toFixed(2) : '-'} | ${dollar.format(tokens[address] * displayPrice)} | ${(tokens[address] / marketCaps[address] * 100).toFixed(2)}% Market Share`}">
+            <li class="progress flex start" title="${`${(tokens[userTokenAddress] || 0).toFixed(2)} | ${dollar.format(tokens[address] * displayPrice)} | ${ownership}% Market Share`}">
               <span style="max-width: ${ownership}%;"></span>
             </li>
             ${
               Object.keys(tokens)
                 .filter(token => token !== address)
                 .map(token => {
+                  if (!peers[token]) return;
+
                   const {
                     tokenLogo,
                     tokenName,
@@ -386,7 +390,7 @@
           `;
         };
 
-// Authentication (IdentitySDK)
+        // Authentication (IdentitySDK)
 
         const { Authentication } = IdentitySDK;
 
@@ -397,7 +401,7 @@
 
             if (!user || !user.username) return;
 
-            notification.innerHTML = 'Finding peers...';
+            notification.innerHTML = `Finding peers...`;
             notification.setAttribute('style', 'top: 10px; opacity: 1;');
 
             let peersResponse;
@@ -413,8 +417,6 @@
                     let infoResponse, priceResponse;
 
                     const peerUrl = peersResponse.peers[address];
-
-                    console.log(peerUrl)
 
                     const infoResult = await fetch(`${peerUrl}/info`);
 
@@ -464,7 +466,7 @@
               onClickCard: async cardElement => {
                 cardElement.onclick = async () => {
                   const usdValue = 10;
-                  const drvValue = 0.0001;
+                  const drvValue = 0.000001;
 
                   const buyResult = await fetch('/transaction', {
                     method: 'POST',
@@ -476,7 +478,7 @@
                       username: user.username,
                       token: user.token,
                       recipient: 'exactchange',
-                      recipientAddress: 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8',
+                      recipientAddress: TOKEN_ADDRESS,
                       usdValue,
                       drvValue,
                       cardNumber: cardElement.dataset.id
@@ -488,9 +490,8 @@
 
                     notification.innerHTML = `You purchased ${drvValue} DRV.`;
                     notification.setAttribute('class', 'show');
-                    renderPrice(buyResponse);
                   } else {
-                    notification.innerHTML = `There was a problem processing that card.`;
+                    notification.innerHTML = 'There was a problem processing that card.';
                     notification.setAttribute('class', 'show error');
                   }
 
@@ -648,6 +649,14 @@
               }
             };
 
+            let infoResponse = {};
+
+            const infoResult = await fetch('/info');
+
+            if (infoResult && infoResult.status === 200) {
+              infoResponse = await infoResult.json();
+            }
+
             // Handle app onActive
 
             switch (appName) {
@@ -656,33 +665,16 @@
 
                 await bindWalletEvents();
 
-                if (!peers[user.userData.address]) {
-                  topbar.innerHTML = `
-                    <h5>${user.username}</h5>
-                    <h5 style="text-align: right;">
-                      <img src="./src/icon.png" alt="DRV" width="20px" height="20px" style="vertical-align: middle;" />
-                      0
-                    </h5>
-                  `;
-
-                  break;
-                }
-
-                const {
-                  tokenAddress,
-                  tokenDenomination
-                } = peers[user.userData.address];
-
-                const { tokens, marketCaps } = await getTokenBalance({
-                  address: tokenAddress,
-                  denomination: tokenDenomination
+                const { tokens } = await getTokenBalance({
+                  address: TOKEN_ADDRESS,
+                  denomination: infoResponse.denomination
                 });
 
                 topbar.innerHTML = `
                   <h5>${user.username}</h5>
                   <h5 style="text-align: right;">
                     <img src="./src/icon.png" alt="DRV" width="20px" height="20px" style="vertical-align: middle;" />
-                    ${Number(tokens[tokenAddress].toFixed(2) || 0).toLocaleString()}
+                    ${dollar.format(Number(tokens[user.userData.address] || 0)).replace('$', '')}
                   </h5>
                 `;
 
@@ -707,18 +699,10 @@
 
                 // Render token info
 
-                let infoResponse = {};
-
-                const infoResult = await fetch('/info');
-
-                if (infoResult && infoResult.status === 200) {
-                  infoResponse = await infoResult.json();
-
-                  renderToken({
-                    tokenInfo: infoResponse,
-                    priceData: priceResponse.body
-                  });
-                }
+                renderToken({
+                  tokenInfo: infoResponse,
+                  priceData: priceResponse.body
+                });
 
                 break;
 

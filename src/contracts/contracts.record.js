@@ -13,48 +13,61 @@ module.exports = ({ drv, userEvents }) => {
     sender,
     recipient,
     recipientAddress,
+    contract,
     usdValue,
     drvValue,
     isDrv
   }) => {
-    const isFungible = contract === 'record';
+    if (isDrv) {
+      const transactionResult = await userEvents.onServicePost({
+        service: drv,
+        serviceName: '/',
+        method: 'transaction',
+        body: {
+          senderAddress: sender.userData.address,
+          recipientAddress,
+          contract,
+          usdValue,
+          drvValue,
+          peers: Object.values(peers)
+        }
+      });
 
-    const transactionResult = await userEvents.onServicePost({
-      service: drv,
-      serviceName: 'drv',
-      method: 'transaction',
-      body: {
-        senderAddress: sender.userData.address,
-        recipientAddress,
-        contract,
-        usdValue,
-        drvValue,
-        peers: Object.values(peers)
+      if (!transactionResult || transactionResult.status !== 200) {
+        return false;
       }
+
+      return transactionResult;
+    }
+
+    const priceResult = await userEvents.onServiceGet({
+      service: drv,
+      serviceName: '/',
+      method: 'price'
     });
 
-    if (!transactionResult || transactionResult.status !== 200) {
+    if (!priceResult || priceResult.status !== 200) {
       return false;
     }
 
-    if (!isDrv) {
-      const transferResult = await Record({
-        token,
-        sender: recipient,
-        recipient: sender,
-        recipientAddress: sender.userData.address,
-        usdValue: (isFungible ? (transactionResult.price * drvValue) : usdValue),
-        drvValue
-      });
+    const transferResult = await Record({
+      token,
+      sender: recipient,
+      recipient: sender,
+      recipientAddress: sender.userData.address,
+      contract: 'record',
+      usdValue,
+      drvValue,
+      isDrv: true
+    });
 
-      if (!transferResult) {
-        console.log(
-          '<Dereva> Transfer Error: There was a problem transferring DRV between accounts.', sender, recipient
-        );
-      }
+    if (!transferResult) {
+      console.log(
+        '<Dereva> Transfer Error: There was a problem transferring DRV between accounts.', sender, recipient
+      );
     }
 
-    return transactionResult;
+    return transferResult;
   };
 
   return Record;
