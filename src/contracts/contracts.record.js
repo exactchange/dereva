@@ -11,7 +11,7 @@ module.exports = ({ drv, peers, userEvents }) => {
     sender,
     recipient,
     recipientAddress,
-    contract,
+    contract = 'record',
     usdValue,
     drvValue,
     isDrv
