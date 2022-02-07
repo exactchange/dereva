@@ -261,6 +261,8 @@
               return INSUFFICIENT_FUNDS;
             }
           }
+
+
         } else {
           if (isFungible) {
             const recipientTokenDrvBalance = await getDrvTokenBalance({
@@ -308,7 +310,7 @@
           );
         } else {
           console.log(
-            `<Dereva> ${senderResponse.username} transferred a record to ${recipientResponse.username}.`
+            `<Dereva> ${senderResponse.username} transferred a record to ${senderResponse.username === recipientResponse.username ? 'the blockchain' : recipientResponse.username}.`
           );
         }
 
