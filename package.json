@@ -8,7 +8,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "drv-core": "^1.1.1",
+    "drv-core": "^1.1.2",
     "express": "^4.17.1",
     "fern-client": "^1.0.4",
     "identity-client": "^1.0.2",
