@@ -36,7 +36,7 @@
               </div>
               <div class="product flex column center">
                 <img src="./src/icon.png" alt="DRV" width="120px" height="120px" />
-                <h3>100 Dereva <span>(0.00001 DRV)</span></h3>
+                <h3>100 Dereva <span>(0.000001 DRV)</span></h3>
                 <button id="buy-coin-button">Buy Dereva ($10 USD)</button>
               </div>
             </div>
@@ -125,7 +125,8 @@
     <script src="src/js/env.js"></script>
     <script defer>
       (async () => {
-        const { TOKEN_ADDRESS, TREASURY_ADDRESS } = env;
+        const { TREASURY_ADDRESS } = env;
+        const NODE_ADDRESS = 'ff0b0fe7-1d46-764a-2b82-9751147cbdd8';
 
         // Browser styles (DuskSDK)
 
@@ -225,17 +226,7 @@
                 if (typeof(drvValue) !== 'number') return;
 
                 const isTreasury = senderAddress === TREASURY_ADDRESS;
-
-                const tokenDenomination = (
-                  senderAddress === address || (
-                    isTreasury &&
-                    recipientAddress === address
-                  )
-                    ? denomination
-                    // : peers[senderAddress].tokenDenomination
-                    : denomination
-                );
-
+                const tokenDenomination = denomination;
                 const tokenValue = drvValue * parseFloat(tokenDenomination);
 
                 if (tokens[senderAddress] === undefined) {
@@ -401,7 +392,7 @@
 
             if (!user || !user.username) return;
 
-            notification.innerHTML = `Finding peers...`;
+            notification.innerHTML = 'Finding peers...';
             notification.setAttribute('style', 'top: 10px; opacity: 1;');
 
             let peersResponse;
@@ -478,7 +469,7 @@
                       username: user.username,
                       token: user.token,
                       recipient: 'exactchange',
-                      recipientAddress: TOKEN_ADDRESS,
+                      recipientAddress: NODE_ADDRESS,
                       usdValue,
                       drvValue,
                       cardNumber: cardElement.dataset.id
@@ -666,7 +657,7 @@
                 await bindWalletEvents();
 
                 const { tokens } = await getTokenBalance({
-                  address: TOKEN_ADDRESS,
+                  address: NODE_ADDRESS,
                   denomination: infoResponse.denomination
                 });
 

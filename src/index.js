@@ -28,7 +28,7 @@
   } = require('./errors');
 
   const {
-    HOST,
+    API_URL,
     TOKEN_ADDRESS,
     TOKEN_NAME,
     TOKEN_LOGO_URL,
@@ -39,16 +39,16 @@
   Backend
   */
 
-  fern.setURL(HOST);
+  fern.setURL(API_URL);
 
   const userApi = require('./api/api.user')();
   const userEvents = require('./events/events.user')();
-
   const peers = require('./peers');
   const { generateId } = require('./algorithms');
 
   const { Record } = require('./contracts')({
     drv,
+    peers,
     userEvents
   });
 
