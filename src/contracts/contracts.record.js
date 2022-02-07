@@ -5,9 +5,7 @@
  *
  */
 
-const peers = require('../peers');
-
-module.exports = ({ drv, userEvents }) => {
+module.exports = ({ drv, peers, userEvents }) => {
   const Record = async ({
     token,
     sender,
