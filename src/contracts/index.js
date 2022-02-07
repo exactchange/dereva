@@ -11,7 +11,7 @@
   Exports
   */
 
-  module.exports = ({ drv, userEvents }) => ({
-    Record: require('./contracts.record')({ drv, userEvents })
+  module.exports = ({ drv, peers, userEvents }) => ({
+    Record: require('./contracts.record')({ drv, peers, userEvents })
   });
 })();
